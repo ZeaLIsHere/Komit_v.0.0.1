@@ -43,6 +43,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       clientId: process.env.GITHUB_CLIENT_ID || process.env.AUTH_GITHUB_ID,
       clientSecret:
         process.env.GITHUB_CLIENT_SECRET || process.env.AUTH_GITHUB_SECRET,
+      issuer: "https://github.com/login/oauth",
     }),
   ],
   session: {
