@@ -16,6 +16,11 @@ const config: Config = {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ["var(--font-inter)", "sans-serif"],
+        display: ["var(--font-plus-jakarta-sans)", "sans-serif"],
+        mono: ["var(--font-jetbrains-mono)", "monospace"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -25,10 +30,17 @@ const config: Config = {
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          container: "#135d38",
+          dark: "#004425",
+          fixed: "#abf3c2",
+          "fixed-dim": "#8fd6a7",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
+          container: "#fe932c",
+          fixed: "#ffdcc3",
+          "fixed-dim": "#ffb77d",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
@@ -49,6 +61,31 @@ const config: Config = {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+        surface: {
+          DEFAULT: "#faf8ff",
+          dim: "#d2d9f4",
+          bright: "#faf8ff",
+          container: {
+            lowest: "#ffffff",
+            low: "#f8fafc",
+            DEFAULT: "#f1f5f9",
+            high: "#e2e8f0",
+            highest: "#dae2fd",
+          },
+        },
+        "on-surface": {
+          DEFAULT: "#131b2e",
+          variant: "#475569",
+        },
+        "on-primary": "#ffffff",
+        "on-primary-container": "#8dd4a5",
+        "outline-variant": "#e2e8f0",
+        outline: "#707971",
+        tertiary: {
+          DEFAULT: "#10b981",
+          container: "#005d3f",
+          fixed: "#6ffbbe",
         },
       },
       borderRadius: {

@@ -14,6 +14,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Search,
+  LayoutGrid,
+  List,
+  ArrowRight,
+  Users,
+  Clock,
+  Flag,
+} from "lucide-react";
 
 export interface GroupTableProps {
   courseId: string;
@@ -32,7 +41,9 @@ export function GroupTable({ courseId, initialGroups }: GroupTableProps) {
   // Filtering
   const filteredGroups = React.useMemo(() => {
     return initialGroups.filter((g) => {
-      const matchSearch = g.name.toLowerCase().includes(search.toLowerCase());
+      const matchSearch =
+        g.name.toLowerCase().includes(search.toLowerCase()) ||
+        g.inviteCode.toLowerCase().includes(search.toLowerCase());
       const matchStatus = statusFilter === "ALL" || g.status === statusFilter;
       return matchSearch && matchStatus;
     });
@@ -76,14 +87,15 @@ export function GroupTable({ courseId, initialGroups }: GroupTableProps) {
 
   return (
     <div className="space-y-4">
-      {/* Search & Filter Controls */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-2 flex-1 max-w-md">
+      {/* Search & Filter Controls Ribbon */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-xs">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-on-surface-variant" />
           <Input
-            placeholder="Cari nama kelompok..."
+            placeholder="Cari nama kelompok atau token..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="h-9 text-sm"
+            className="pl-9 h-9 text-xs bg-surface-container-low border-outline-variant focus:border-primary-container"
           />
         </div>
 
@@ -93,12 +105,12 @@ export function GroupTable({ courseId, initialGroups }: GroupTableProps) {
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as FilterStatus)}
             aria-label="Filter status kelompok"
-            className="h-9 rounded-md border border-input bg-background px-2.5 py-1 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-ring"
+            className="h-9 rounded-lg border border-outline-variant bg-surface-container-low px-3 py-1 text-xs font-semibold text-on-surface focus:outline-none focus:ring-1 focus:ring-primary-container cursor-pointer"
           >
             <option value="ALL">Semua Status</option>
-            <option value="ACTIVE">Aktif</option>
-            <option value="SLOWING">Melambat</option>
-            <option value="INACTIVE">Tidak Aktif</option>
+            <option value="ACTIVE">🟢 Aktif</option>
+            <option value="SLOWING">🟡 Melambat</option>
+            <option value="INACTIVE">🔴 Tidak Aktif</option>
           </select>
 
           {/* Sort By */}
@@ -106,33 +118,45 @@ export function GroupTable({ courseId, initialGroups }: GroupTableProps) {
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as SortOption)}
             aria-label="Urutkan daftar kelompok"
-            className="h-9 rounded-md border border-input bg-background px-2.5 py-1 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-ring"
+            className="h-9 rounded-lg border border-outline-variant bg-surface-container-low px-3 py-1 text-xs font-semibold text-on-surface focus:outline-none focus:ring-1 focus:ring-primary-container cursor-pointer"
           >
-            <option value="status">Urutkan: Status (Perlu Perhatian)</option>
-            <option value="name">Urutkan: Nama (A-Z)</option>
+            <option value="status">Urutkan: Urgensi Status</option>
+            <option value="name">Urutkan: Nama Kelompok (A-Z)</option>
             <option value="lastActivity">Urutkan: Aktivitas Terbaru</option>
             <option value="lateMilestone">Urutkan: Milestone Terlambat</option>
           </select>
 
           {/* View Toggle */}
-          <div className="flex items-center border rounded-md overflow-hidden bg-muted p-0.5">
+          <div className="flex items-center border border-outline-variant rounded-lg overflow-hidden bg-surface-container-low p-0.5">
             <Button
               type="button"
               variant={viewMode === "table" ? "secondary" : "ghost"}
               size="sm"
               onClick={() => setViewMode("table")}
-              className="h-7 text-xs px-2.5"
+              className={`h-7 px-2 text-xs gap-1.5 ${
+                viewMode === "table"
+                  ? "bg-surface-container-lowest text-primary font-bold shadow-xs"
+                  : "text-on-surface-variant"
+              }`}
+              title="Tampilan Tabel"
             >
-              Tabel
+              <List className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Tabel</span>
             </Button>
             <Button
               type="button"
               variant={viewMode === "card" ? "secondary" : "ghost"}
               size="sm"
               onClick={() => setViewMode("card")}
-              className="h-7 text-xs px-2.5"
+              className={`h-7 px-2 text-xs gap-1.5 ${
+                viewMode === "card"
+                  ? "bg-surface-container-lowest text-primary font-bold shadow-xs"
+                  : "text-on-surface-variant"
+              }`}
+              title="Tampilan Kartu"
             >
-              Kartu
+              <LayoutGrid className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Kartu</span>
             </Button>
           </div>
         </div>
@@ -140,7 +164,7 @@ export function GroupTable({ courseId, initialGroups }: GroupTableProps) {
 
       {/* Empty State */}
       {sortedGroups.length === 0 ? (
-        <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
+        <div className="rounded-xl border border-dashed border-outline-variant bg-surface-container-lowest p-12 text-center text-xs text-on-surface-variant">
           {initialGroups.length === 0
             ? "Belum ada kelompok yang terdaftar pada mata kuliah ini."
             : "Tidak ada kelompok yang sesuai dengan filter pencarian."}
@@ -154,16 +178,28 @@ export function GroupTable({ courseId, initialGroups }: GroupTableProps) {
         </div>
       ) : (
         /* Table View */
-        <div className="border rounded-md overflow-hidden bg-card shadow-sm">
+        <div className="border border-outline-variant rounded-xl overflow-hidden bg-surface-container-lowest shadow-xs">
           <Table>
-            <TableHeader className="bg-muted/50">
-              <TableRow>
-                <TableHead className="font-semibold text-xs">Nama Kelompok</TableHead>
-                <TableHead className="font-semibold text-xs">Status</TableHead>
-                <TableHead className="font-semibold text-xs">Anggota</TableHead>
-                <TableHead className="font-semibold text-xs">Aktivitas Terakhir</TableHead>
-                <TableHead className="font-semibold text-xs">Target Milestone</TableHead>
-                <TableHead className="text-right font-semibold text-xs">Aksi</TableHead>
+            <TableHeader className="bg-surface-container-low/70 border-b border-outline-variant">
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="font-display font-bold text-xs text-on-surface py-3.5">
+                  Kelompok & Repositori
+                </TableHead>
+                <TableHead className="font-display font-bold text-xs text-on-surface py-3.5">
+                  Status Sprint
+                </TableHead>
+                <TableHead className="font-display font-bold text-xs text-on-surface py-3.5">
+                  Anggota
+                </TableHead>
+                <TableHead className="font-display font-bold text-xs text-on-surface py-3.5">
+                  Aktivitas Terakhir
+                </TableHead>
+                <TableHead className="font-display font-bold text-xs text-on-surface py-3.5">
+                  Target Milestone
+                </TableHead>
+                <TableHead className="text-right font-display font-bold text-xs text-on-surface py-3.5 pr-6">
+                  Aksi
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -172,61 +208,88 @@ export function GroupTable({ courseId, initialGroups }: GroupTableProps) {
                   ? new Date(group.lastActivityAt).toLocaleDateString("id-ID", {
                       day: "numeric",
                       month: "short",
+                      year: "numeric",
                     })
-                  : "-";
+                  : "Belum ada aktivitas";
 
                 return (
-                  <TableRow key={group.id} className="hover:bg-muted/30">
-                    <TableCell className="font-medium">
-                      <Link
-                        href={`/courses/${courseId}/groups/${group.id}`}
-                        className="hover:underline text-foreground"
-                      >
-                        {group.name}
-                      </Link>
+                  <TableRow
+                    key={group.id}
+                    className="hover:bg-surface-container-low/50 border-b border-outline-variant/60 transition-colors"
+                  >
+                    <TableCell className="py-3.5">
+                      <div className="space-y-0.5">
+                        <Link
+                          href={`/courses/${courseId}/groups/${group.id}`}
+                          className="font-bold text-xs sm:text-sm text-on-surface hover:text-primary transition-colors block"
+                        >
+                          {group.name}
+                        </Link>
+                        <div className="flex items-center gap-2 text-[11px] font-mono text-on-surface-variant">
+                          <span>Token: {group.inviteCode}</span>
+                        </div>
+                      </div>
                     </TableCell>
-                    <TableCell>
+
+                    <TableCell className="py-3.5">
                       <GroupStatusBadge status={group.status} />
                     </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {group.memberCount} Orang
+
+                    <TableCell className="text-xs text-on-surface font-medium py-3.5">
+                      <div className="flex items-center gap-1.5">
+                        <Users className="h-3.5 w-3.5 text-on-surface-variant" />
+                        <span>{group.memberCount} Mhs</span>
+                      </div>
                     </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {lastActiveText}
+
+                    <TableCell className="text-xs text-on-surface-variant font-mono py-3.5">
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="h-3.5 w-3.5 text-on-surface-variant" />
+                        <span>{lastActiveText}</span>
+                      </div>
                     </TableCell>
-                    <TableCell className="text-xs">
+
+                    <TableCell className="text-xs py-3.5">
                       {group.activeMilestone ? (
-                        <div className="flex items-center gap-1.5">
-                          <span className="truncate max-w-[130px]">
+                        <div className="space-y-1">
+                          <span className="font-semibold text-on-surface block truncate max-w-[150px]">
                             {group.activeMilestone.title}
                           </span>
                           <span
-                            className={`text-[10px] font-semibold px-1 py-0.5 rounded ${
+                            className={`inline-block text-[10px] font-semibold px-1.5 py-0.5 rounded-full border ${
                               group.activeMilestone.status === "SUBMITTED"
-                                ? "bg-emerald-100 text-emerald-800"
+                                ? "bg-emerald-50 text-emerald-800 border-emerald-200"
                                 : group.activeMilestone.status === "LATE"
-                                ? "bg-rose-100 text-rose-800"
-                                : "bg-muted text-muted-foreground"
+                                ? "bg-rose-50 text-rose-800 border-rose-200"
+                                : "bg-surface-container text-on-surface border-outline-variant"
                             }`}
                           >
                             {group.activeMilestone.status === "SUBMITTED"
                               ? "Selesai"
                               : group.activeMilestone.status === "LATE"
                               ? "Terlambat"
-                              : "Belum Kumpul"}
+                              : "Menunggu"}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-muted-foreground">-</span>
+                        <span className="text-on-surface-variant/60 text-xs italic">
+                          -
+                        </span>
                       )}
                     </TableCell>
-                    <TableCell className="text-right">
-                      <Link
-                        href={`/courses/${courseId}/groups/${group.id}`}
-                        className="text-xs font-medium text-primary hover:underline"
+
+                    <TableCell className="text-right py-3.5 pr-6">
+                      <Button
+                        asChild
+                        variant="outline"
+                        size="sm"
+                        className="h-8 text-xs font-semibold border-outline-variant bg-surface-container-lowest hover:bg-surface-container hover:text-primary gap-1"
                       >
-                        Lihat Detail →
-                      </Link>
+                        <Link href={`/courses/${courseId}/groups/${group.id}`}>
+                          <span>Detail</span>
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </Link>
+                      </Button>
                     </TableCell>
                   </TableRow>
                 );

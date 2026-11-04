@@ -17,20 +17,32 @@ export default async function LandingPage() {
       {/* Top Navbar */}
       <header className="h-16 border-b bg-background/95 backdrop-blur-sm sticky top-0 z-50 px-4 md:px-8">
         <div className="max-w-5xl mx-auto h-full flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5 font-bold text-lg tracking-tight">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm">
-              K
+          <Link href="/" className="flex items-center gap-2.5 font-bold tracking-tight">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-container text-white font-bold text-sm shadow-xs">
+              <span className="font-mono text-xs">TI</span>
             </div>
-            <span>Komit</span>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-1.5">
+                <span className="leading-tight font-display text-sm font-bold text-primary">
+                  USU CS Project Pulse
+                </span>
+                <span className="text-[9px] font-mono bg-secondary-fixed text-on-secondary-fixed px-1 rounded font-bold">
+                  v2.4
+                </span>
+              </div>
+              <span className="text-[10px] text-on-surface-variant font-normal">
+                Fakultas Ilmu Komputer & TI USU
+              </span>
+            </div>
           </Link>
 
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
-              <Button asChild size="sm">
+              <Button asChild size="sm" className="bg-primary-container hover:bg-primary text-white text-xs font-semibold shadow-xs">
                 <Link href="/courses">Buka Dashboard</Link>
               </Button>
             ) : (
-              <Button asChild size="sm">
+              <Button asChild size="sm" className="bg-primary-container hover:bg-primary text-white text-xs font-semibold shadow-xs">
                 <Link href="/login">Masuk dengan GitHub</Link>
               </Button>
             )}

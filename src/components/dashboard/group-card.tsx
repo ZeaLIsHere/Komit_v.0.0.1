@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { type GroupDashboardItem } from "@/lib/queries/course-dashboard";
-import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -8,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Users, Clock, GitCommit, ArrowRight, GitFork } from "lucide-react";
 
 export interface GroupCardProps {
   courseId: string;
@@ -16,36 +16,41 @@ export interface GroupCardProps {
 
 export function GroupStatusBadge({
   status,
+  daysInactive,
 }: {
   status: GroupDashboardItem["status"];
+  daysInactive?: number;
 }) {
   switch (status) {
     case "ACTIVE":
       return (
-        <Badge
-          variant="default"
-          className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
-        >
-          Aktif
-        </Badge>
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span>Aktif</span>
+        </span>
       );
     case "SLOWING":
       return (
-        <Badge
-          variant="secondary"
-          className="bg-amber-100 text-amber-900 border-amber-300 font-medium"
-        >
-          Melambat
-        </Badge>
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+          <span>
+            Melambat {daysInactive !== undefined ? `(${daysInactive} hari)` : ""}
+          </span>
+        </span>
       );
     case "INACTIVE":
       return (
-        <Badge variant="destructive" className="font-medium">
-          Tidak Aktif
-        </Badge>
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200">
+          <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+          <span>Tidak Aktif</span>
+        </span>
       );
     default:
-      return <Badge variant="outline">Tidak Diketahui</Badge>;
+      return (
+        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-surface-container text-on-surface-variant border border-outline-variant">
+          <span>Tidak Diketahui</span>
+        </span>
+      );
   }
 }
 
@@ -59,68 +64,83 @@ export function GroupCard({ courseId, group }: GroupCardProps) {
     : "Belum ada aktivitas";
 
   return (
-    <Card className="hover:border-foreground/30 transition-colors flex flex-col justify-between shadow-sm">
-      <CardHeader className="pb-3 space-y-2">
+    <Card className="hover:border-primary/40 transition-colors flex flex-col justify-between shadow-xs bg-surface-container-lowest border-outline-variant">
+      <CardHeader className="pb-3 space-y-2.5">
         <div className="flex items-start justify-between gap-2">
-          <CardTitle className="text-base font-semibold leading-tight line-clamp-1">
-            {group.name}
-          </CardTitle>
+          <div className="space-y-1">
+            <CardTitle className="text-base font-bold text-on-surface leading-tight line-clamp-1 font-display">
+              {group.name}
+            </CardTitle>
+            <div className="flex items-center gap-2 text-[11px] font-mono text-on-surface-variant">
+              <span>Token: {group.inviteCode}</span>
+            </div>
+          </div>
           <GroupStatusBadge status={group.status} />
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-3 text-xs text-muted-foreground pb-4">
-        <div className="flex items-center justify-between">
-          <span>Jumlah Anggota:</span>
-          <span className="font-medium text-foreground">
-            {group.memberCount} Orang
-          </span>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <span>Aktivitas Terakhir:</span>
-          <span className="font-medium text-foreground">{lastActiveText}</span>
+      <CardContent className="space-y-3 text-xs text-on-surface-variant pb-4">
+        <div className="grid grid-cols-2 gap-2 p-2.5 rounded-lg bg-surface-container-low border border-outline-variant/60">
+          <div className="space-y-0.5">
+            <span className="text-[10px] uppercase font-mono text-on-surface-variant/70 block">
+              Anggota
+            </span>
+            <div className="flex items-center gap-1 text-on-surface font-semibold">
+              <Users className="h-3.5 w-3.5 text-primary" />
+              <span>{group.memberCount} Mhs</span>
+            </div>
+          </div>
+          <div className="space-y-0.5">
+            <span className="text-[10px] uppercase font-mono text-on-surface-variant/70 block">
+              Aktivitas
+            </span>
+            <div className="flex items-center gap-1 text-on-surface font-semibold">
+              <Clock className="h-3.5 w-3.5 text-on-surface-variant" />
+              <span className="truncate">{lastActiveText}</span>
+            </div>
+          </div>
         </div>
 
         {group.activeMilestone ? (
-          <div className="pt-2 border-t space-y-1">
-            <span className="text-[11px] block text-muted-foreground">
-              Target Milestone:
-            </span>
-            <div className="flex items-center justify-between gap-1">
-              <span className="font-medium text-foreground truncate max-w-[150px]">
-                {group.activeMilestone.title}
+          <div className="pt-2 border-t border-outline-variant/60 space-y-1.5">
+            <div className="flex items-center justify-between text-[11px]">
+              <span className="text-on-surface-variant font-mono">
+                Target Milestone:
               </span>
               <span
-                className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${
+                className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
                   group.activeMilestone.status === "SUBMITTED"
-                    ? "bg-emerald-100 text-emerald-800"
+                    ? "bg-emerald-50 text-emerald-800 border-emerald-200"
                     : group.activeMilestone.status === "LATE"
-                    ? "bg-rose-100 text-rose-800"
-                    : "bg-muted text-muted-foreground"
+                    ? "bg-rose-50 text-rose-800 border-rose-200"
+                    : "bg-surface-container text-on-surface border-outline-variant"
                 }`}
               >
                 {group.activeMilestone.status === "SUBMITTED"
-                  ? "Selesai"
+                  ? "Selesai Dikumpul"
                   : group.activeMilestone.status === "LATE"
                   ? "Terlambat"
-                  : "Belum Kumpul"}
+                  : "Menunggu Pengumpulan"}
               </span>
             </div>
+            <p className="text-xs font-semibold text-on-surface truncate">
+              {group.activeMilestone.title}
+            </p>
           </div>
         ) : (
-          <div className="pt-2 border-t text-[11px] italic">
+          <div className="pt-2 border-t border-outline-variant/60 text-[11px] text-on-surface-variant/70 italic">
             Belum ada target milestone aktif
           </div>
         )}
       </CardContent>
 
-      <CardFooter className="pt-0">
+      <CardFooter className="pt-0 border-t border-outline-variant/40 pt-3">
         <Link
           href={`/courses/${courseId}/groups/${group.id}`}
-          className="text-xs text-primary font-medium hover:underline inline-flex items-center gap-1"
+          className="text-xs font-semibold text-primary hover:text-primary-dark inline-flex items-center gap-1.5 group w-full justify-between"
         >
-          Lihat Detail Kelompok →
+          <span>Buka Detail Pemantauan</span>
+          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
         </Link>
       </CardFooter>
     </Card>

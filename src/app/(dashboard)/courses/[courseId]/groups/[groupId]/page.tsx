@@ -13,7 +13,21 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { ActivityChart } from "@/components/dashboard/activity-chart";
 import { MemberIndicators } from "@/components/dashboard/member-indicators";
+import { GroupStatusBadge } from "@/components/dashboard/group-card";
 import { ConnectRepo } from "./_components/connect-repo";
+import {
+  ChevronRight,
+  GitBranch,
+  Terminal,
+  ExternalLink,
+  Users,
+  Copy,
+  AlertTriangle,
+  History,
+  GitCommit,
+  GitPullRequest,
+  CheckCircle2,
+} from "lucide-react";
 
 interface GroupDetailPageProps {
   params: {
@@ -59,85 +73,111 @@ export default async function GroupDetailPage({ params }: GroupDetailPageProps) 
 
   const primaryRepo = group.repositories[0] || null;
 
-  // Status badge styling
-  const statusBadges = {
-    ACTIVE: { label: "Aktif", class: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-    SLOWING: { label: "Melambat", class: "bg-amber-50 text-amber-700 border-amber-200" },
-    INACTIVE: { label: "Tidak Aktif", class: "bg-destructive/15 text-destructive border-destructive/20" },
-  };
-  const statusInfo = statusBadges[group.status] || statusBadges.ACTIVE;
+  // Calculate days inactive
+  const daysInactive = group.lastActivityAt
+    ? Math.floor(
+        (Date.now() - new Date(group.lastActivityAt).getTime()) / (1000 * 60 * 60 * 24)
+      )
+    : undefined;
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
-      {/* Navigation Breadcrumb */}
-      <div className="flex items-center justify-between">
-        <Button asChild variant="ghost" size="sm">
-          <Link href={`/courses/${group.course.id}`}>
-            ← Kembali ke {group.course.name}
-          </Link>
-        </Button>
+    <div className="space-y-6 max-w-7xl mx-auto py-2">
+      {/* Breadcrumb Navigation */}
+      <nav className="flex items-center gap-1.5 text-xs text-on-surface-variant font-medium">
+        <Link
+          href={`/courses/${group.course.id}`}
+          className="hover:text-primary transition-colors truncate max-w-[200px]"
+        >
+          {group.course.name}
+        </Link>
+        <ChevronRight className="h-3.5 w-3.5 text-outline shrink-0" />
+        <span className="text-on-surface font-semibold truncate max-w-[250px]">
+          {group.name}
+        </span>
+        <ChevronRight className="h-3.5 w-3.5 text-outline shrink-0" />
+        <span className="text-on-surface-variant/80 font-mono">Detail Pemantauan</span>
+      </nav>
 
-        <div className="flex items-center gap-2">
-          <Button asChild variant="outline" size="sm">
-            <Link href={`/courses/${params.courseId}/groups/${params.groupId}/mapping`}>
-              Pemetaan Identitas Git ({unmappedCount} belum terhubung)
-            </Link>
-          </Button>
-        </div>
-      </div>
+      {/* Group Header Card */}
+      <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 sm:p-6 shadow-xs space-y-4">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="font-display text-2xl sm:text-3xl font-bold text-on-surface tracking-tight">
+                {group.name}
+              </h1>
+              <GroupStatusBadge status={group.status} daysInactive={daysInactive} />
+            </div>
 
-      {/* Group Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-xl border bg-card">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="text-2xl font-bold tracking-tight">{group.name}</h1>
-            <Badge variant="outline" className={statusInfo.class}>
-              {statusInfo.label}
-            </Badge>
+            <p className="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
+              Mata Kuliah: <strong className="text-on-surface">{group.course.name}</strong> ({group.course.code}) • Semester {group.course.semester}
+            </p>
+
+            {/* Metadata Repo, Invite Code & Sync */}
+            <div className="flex flex-wrap items-center gap-3 pt-1 text-xs">
+              {primaryRepo ? (
+                <a
+                  href={`https://github.com/${primaryRepo.fullName}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 font-mono text-xs text-primary hover:underline bg-surface-container-low px-2.5 py-1 rounded-lg border border-outline-variant font-medium"
+                >
+                  <Terminal className="h-3.5 w-3.5" />
+                  <span>{primaryRepo.fullName}</span>
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 font-mono text-xs text-on-surface-variant bg-surface-container px-2.5 py-1 rounded-lg border border-outline-variant">
+                  <Terminal className="h-3.5 w-3.5" />
+                  <span>Belum Terhubung Repositori</span>
+                </span>
+              )}
+
+              <div className="inline-flex items-center gap-1.5 bg-surface-container-low px-2.5 py-1 rounded-lg border border-outline-variant font-mono text-xs text-on-surface">
+                <span className="text-on-surface-variant">Token:</span>
+                <span className="font-bold tracking-wider text-primary">{group.inviteCode}</span>
+              </div>
+            </div>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Mata Kuliah: {group.course.name} ({group.course.code}) • Semester {group.course.semester}
-          </p>
-        </div>
 
-        <div className="flex flex-col sm:items-end gap-1.5 text-xs text-muted-foreground">
-          <div className="flex items-center gap-1.5">
-            <span>Kode Undangan:</span>
-            <span className="font-mono font-bold text-foreground bg-muted px-2 py-0.5 rounded text-sm tracking-wider">
-              {group.inviteCode}
-            </span>
-          </div>
-          <div>
-            Aktivitas Terakhir:{" "}
-            <span className="font-medium text-foreground">
-              {group.lastActivityAt
-                ? new Date(group.lastActivityAt).toLocaleDateString("id-ID", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                : "Belum ada aktivitas"}
-            </span>
+          {/* Action Buttons Cluster */}
+          <div className="flex items-center gap-2 self-start md:self-auto flex-wrap">
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="h-9 text-xs font-semibold border-outline-variant bg-surface-container-lowest hover:bg-surface-container"
+            >
+              <Link href={`/courses/${params.courseId}/groups/${params.groupId}/mapping`}>
+                <GitBranch className="h-3.5 w-3.5 mr-1.5 text-primary" />
+                <span>Pemetaan Git {unmappedCount > 0 ? `(${unmappedCount})` : ""}</span>
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
 
       {/* Unmapped Activities Warning Banner (F-31) */}
       {unmappedCount > 0 && (
-        <div className="p-4 rounded-lg border border-amber-200 bg-amber-50 text-amber-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-          <div>
-            <strong className="font-semibold text-sm block sm:inline mr-1">
-              ⚠️ Perhatian: {unmappedCount} aktivitas commit belum terhubung!
-            </strong>
-            <span>
-              Ada kontribusi yang author Git-nya belum dicocokkan ke anggota kelompok. Hubungkan sekarang agar kontribusi tercatat.
-            </span>
+        <div className="p-4 rounded-xl border border-amber-200/90 bg-amber-50/70 text-amber-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs">
+          <div className="flex items-start gap-2.5">
+            <AlertTriangle className="h-4 w-4 text-amber-700 shrink-0 mt-0.5" />
+            <div>
+              <strong className="font-semibold block sm:inline mr-1 text-amber-900">
+                Perhatian: Ditemukan {unmappedCount} aktivitas commit belum terhubung!
+              </strong>
+              <span className="text-amber-800">
+                Ada kontribusi GitHub yang author-nya belum dipetakan ke mahasiswa. Hubungkan sekarang agar metrik tercatat akurat.
+              </span>
+            </div>
           </div>
-          <Button asChild size="sm" variant="default" className="shrink-0 bg-amber-700 hover:bg-amber-800 text-white">
+          <Button
+            asChild
+            size="sm"
+            className="shrink-0 bg-amber-700 hover:bg-amber-800 text-white font-semibold text-xs h-8"
+          >
             <Link href={`/courses/${params.courseId}/groups/${params.groupId}/mapping`}>
-              Buka Halaman Pemetaan →
+              Buka Pemetaan Git →
             </Link>
           </Button>
         </div>
@@ -175,58 +215,72 @@ export default async function GroupDetailPage({ params }: GroupDetailPageProps) 
 
         {/* Recent Activity Feed */}
         <div className="lg:col-span-2">
-          <Card className="h-full flex flex-col justify-between">
-            <CardHeader className="pb-3">
+          <Card className="h-full flex flex-col justify-between bg-surface-container-lowest border-outline-variant shadow-xs">
+            <CardHeader className="pb-3 border-b border-outline-variant/60">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base font-semibold">Aktivitas Terbaru</CardTitle>
-                <span className="text-xs text-muted-foreground">10 Event Terakhir</span>
+                <div className="flex items-center gap-2">
+                  <History className="h-4 w-4 text-primary" />
+                  <CardTitle className="font-display text-sm font-bold text-on-surface">
+                    Aktivitas Terbaru Repositori
+                  </CardTitle>
+                </div>
+                <span className="text-[11px] font-mono text-on-surface-variant">
+                  10 Event Terakhir
+                </span>
               </div>
-              <CardDescription className="text-xs">
-                Log riwayat commit, pull request, dan issue dari repositori kelompok.
+              <CardDescription className="text-xs text-on-surface-variant">
+                Log telemetri commit, pull request, dan issue yang terekam dari GitHub.
               </CardDescription>
             </CardHeader>
 
-            <CardContent>
+            <CardContent className="pt-3 flex-1">
               {recentActivities.length === 0 ? (
-                <div className="py-8 text-center text-xs text-muted-foreground">
-                  Belum ada aktivitas commit atau pull request yang tercatat.
+                <div className="py-12 text-center text-xs text-on-surface-variant">
+                  Belum ada aktivitas commit atau pull request yang tercatat pada repositori ini.
                 </div>
               ) : (
-                <div className="divide-y text-xs">
+                <div className="divide-y divide-outline-variant/60 text-xs">
                   {recentActivities.map((act) => (
-                    <div key={act.id} className="py-2.5 flex items-start justify-between gap-3">
-                      <div className="space-y-0.5">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <Badge variant="outline" className="text-[10px] uppercase font-mono px-1 py-0 h-4">
-                            {act.type.replace("_", " ")}
-                          </Badge>
-                          <span className="font-medium text-foreground">
+                    <div key={act.id} className="py-3 flex items-start justify-between gap-3">
+                      <div className="space-y-1 flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="inline-flex items-center gap-1 text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-surface-container text-on-surface font-semibold border border-outline-variant">
+                            {act.type.includes("PR") ? (
+                              <GitPullRequest className="h-3 w-3 text-emerald-600" />
+                            ) : (
+                              <GitCommit className="h-3 w-3 text-blue-600" />
+                            )}
+                            <span>{act.type.replace("_", " ")}</span>
+                          </span>
+
+                          <span className="font-semibold text-on-surface text-xs truncate max-w-[150px]">
                             {act.userName || act.githubAuthor}
                           </span>
+
                           {!act.userName && (
-                            <span className="text-[10px] text-amber-700 bg-amber-50 px-1 rounded">
+                            <span className="text-[10px] font-semibold text-amber-800 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200">
                               belum dipetakan
                             </span>
                           )}
+
                           {act.isFiltered && (
-                            <span className="text-[10px] text-muted-foreground bg-muted px-1 rounded">
+                            <span className="text-[10px] text-on-surface-variant bg-surface-container px-1 rounded">
                               noise
                             </span>
                           )}
                         </div>
-                        <p className="text-muted-foreground line-clamp-1 font-mono text-[11px]">
+
+                        <p className="text-on-surface font-mono text-xs leading-normal truncate">
                           {act.title}
                         </p>
                       </div>
 
-                      <span className="text-muted-foreground text-[10px] shrink-0">
+                      <div className="text-right shrink-0 text-[11px] font-mono text-on-surface-variant">
                         {new Date(act.occurredAt).toLocaleDateString("id-ID", {
                           day: "numeric",
                           month: "short",
-                          hour: "2-digit",
-                          minute: "2-digit",
                         })}
-                      </span>
+                      </div>
                     </div>
                   ))}
                 </div>

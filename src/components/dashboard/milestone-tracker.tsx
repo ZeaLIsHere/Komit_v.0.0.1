@@ -63,18 +63,26 @@ export function MilestoneStatusBadge({
   switch (status) {
     case "SUBMITTED":
       return (
-        <Badge
-          variant="default"
-          className="bg-emerald-600 hover:bg-emerald-700 text-white"
-        >
-          Tepat Waktu
-        </Badge>
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+          <span>Selesai Dikumpul</span>
+        </span>
       );
     case "LATE":
-      return <Badge variant="destructive">Terlambat</Badge>;
+      return (
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200">
+          <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+          <span>Terlambat</span>
+        </span>
+      );
     case "PENDING":
     default:
-      return <Badge variant="secondary">Belum Kumpul</Badge>;
+      return (
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+          <span>Menunggu Pengumpulan</span>
+        </span>
+      );
   }
 }
 
@@ -185,19 +193,21 @@ export function MilestoneTracker({
   };
 
   return (
-    <div className="rounded-lg border bg-card p-5 shadow-sm space-y-4">
+    <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-5 sm:p-6 shadow-xs space-y-4">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
         <div className="space-y-1">
-          <h3 className="text-lg font-semibold tracking-tight">{title}</h3>
+          <h3 className="font-display text-base sm:text-lg font-bold text-on-surface tracking-tight">
+            {title}
+          </h3>
           {description && (
-            <p className="text-sm text-muted-foreground whitespace-pre-line">
+            <p className="text-xs sm:text-sm text-on-surface-variant whitespace-pre-line leading-relaxed">
               {description}
             </p>
           )}
-          <p className="text-xs text-muted-foreground pt-1">
-            Tenggat:{" "}
-            <span className="font-medium text-foreground">
+          <p className="text-xs text-on-surface-variant pt-1 font-mono">
+            Tenggat Waktu:{" "}
+            <span className="font-semibold text-primary">
               {formattedDueDate}
             </span>
           </p>
@@ -209,9 +219,12 @@ export function MilestoneTracker({
             <MilestoneStatusBadge status={studentSubmission.status} />
             <Button
               size="sm"
-              variant={
-                studentSubmission.status === "PENDING" ? "default" : "outline"
+              className={
+                studentSubmission.status === "PENDING"
+                  ? "bg-primary-container hover:bg-primary text-white text-xs font-semibold"
+                  : "border-outline-variant bg-surface-container-lowest text-xs font-semibold"
               }
+              variant={studentSubmission.status === "PENDING" ? "default" : "outline"}
               onClick={() => {
                 setLinkList(studentSubmission.links ?? []);
                 setSubmitError(null);
@@ -228,25 +241,27 @@ export function MilestoneTracker({
 
       {/* Progress Bar for Lecturer */}
       {isLecturer && (
-        <div className="space-y-2 pt-2 border-t">
-          <div className="flex justify-between text-xs text-muted-foreground">
+        <div className="space-y-2 pt-3 border-t border-outline-variant/60">
+          <div className="flex flex-col sm:flex-row justify-between text-xs text-on-surface-variant gap-1">
             <span>
-              Progres Pengumpulan: {completedCount} dari {totalGroups} Kelompok (
+              Progres Pengumpulan: <strong className="text-on-surface">{completedCount}</strong> dari {totalGroups} Kelompok (
               {progressPercent}%)
             </span>
-            <div className="flex gap-3">
-              <span className="text-emerald-600 font-medium">
-                {submittedCount} Tepat Waktu
+            <div className="flex gap-3 text-[11px] font-mono">
+              <span className="text-emerald-700 font-semibold">
+                {submittedCount} Selesai
               </span>
-              <span className="text-destructive font-medium">
+              <span className="text-rose-700 font-semibold">
                 {lateCount} Terlambat
               </span>
-              <span>{pendingCount} Belum Kumpul</span>
+              <span className="text-on-surface-variant">
+                {pendingCount} Menunggu
+              </span>
             </div>
           </div>
-          <div className="w-full h-2 rounded-full bg-secondary overflow-hidden">
+          <div className="w-full h-2 rounded-full bg-surface-container overflow-hidden">
             <div
-              className="h-full bg-primary transition-all duration-300"
+              className="h-full bg-primary-container transition-all duration-300 rounded-full"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -257,12 +272,12 @@ export function MilestoneTracker({
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-xs text-muted-foreground h-8 px-2"
+                className="text-xs font-semibold text-primary hover:text-primary-dark h-8 px-2"
                 onClick={() => setActiveTabOpen(!activeTabOpen)}
               >
                 {activeTabOpen
-                  ? "Sembunyikan Daftar Kelompok"
-                  : `Lihat Pengumpulan (${submissions.length} Kelompok)`}
+                  ? "Sembunyikan Daftar Pengumpulan"
+                  : `Lihat Pengumpulan (${submissions.length} Kelompok) ↓`}
               </Button>
             </div>
           )}

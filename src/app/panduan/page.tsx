@@ -14,13 +14,19 @@ export default async function PanduanPage() {
       {/* Top Header */}
       <header className="h-14 border-b bg-background/95 backdrop-blur sticky top-0 z-40 px-4 md:px-8 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href={isAuthenticated ? "/courses" : "/"} className="flex items-center gap-2 font-bold text-base tracking-tight">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground text-xs font-bold">
-              K
-            </span>
-            <span>Komit</span>
+          <Link href={isAuthenticated ? "/courses" : "/"} className="flex items-center gap-2.5 font-bold text-base tracking-tight">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-container text-white font-bold text-xs shadow-xs">
+              TI
+            </div>
+            <div className="flex flex-col">
+              <span className="font-display text-sm font-bold text-primary leading-tight">
+                USU CS Project Pulse
+              </span>
+              <span className="text-[10px] text-on-surface-variant font-mono">
+                Panduan & Etika PDP
+              </span>
+            </div>
           </Link>
-          <span className="text-muted-foreground text-xs hidden sm:inline">| Pusat Panduan & Bantuan</span>
         </div>
 
         <div className="flex items-center gap-2">

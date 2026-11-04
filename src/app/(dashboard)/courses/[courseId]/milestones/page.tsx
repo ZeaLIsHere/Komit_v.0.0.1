@@ -11,6 +11,7 @@ import {
   type SubmissionGroupItem,
 } from "@/components/dashboard/milestone-tracker";
 import { Button } from "@/components/ui/button";
+import { Flag, Plus, ChevronRight, Calendar } from "lucide-react";
 
 export default async function MilestonesPage({
   params,
@@ -50,6 +51,18 @@ export default async function MilestonesPage({
           select: {
             id: true,
             name: true,
+            memberships: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    nim: true,
+                    username: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -63,34 +76,69 @@ export default async function MilestonesPage({
     const submissionsByMilestone = new Map<string, SubmissionGroupItem[]>();
     for (const sub of allSubmissions) {
       const list = submissionsByMilestone.get(sub.milestoneId) ?? [];
-      list.push(sub as SubmissionGroupItem);
+      list.push(sub as unknown as SubmissionGroupItem);
       submissionsByMilestone.set(sub.milestoneId, list);
     }
 
     return (
-      <div className="max-w-5xl mx-auto py-6 px-4 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
+      <div className="max-w-7xl mx-auto py-6 px-4 md:px-6 space-y-6">
+        {/* Breadcrumbs */}
+        <nav className="flex items-center gap-1.5 text-xs text-on-surface-variant font-medium">
+          <Link
+            href={`/courses/${course.id}`}
+            className="hover:text-primary transition-colors truncate max-w-[200px]"
+          >
+            {course.name}
+          </Link>
+          <ChevronRight className="h-3.5 w-3.5 text-outline shrink-0" />
+          <span className="text-on-surface font-semibold font-mono">
+            Manajemen Milestone
+          </span>
+        </nav>
+
+        {/* Course & Context Sub-Header */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-outline-variant">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Milestone Proyek</h1>
-            <p className="text-sm text-muted-foreground">
-              {course.code} — {course.name} ({course.semester})
+            <div className="flex items-center gap-2 text-xs font-mono mb-1">
+              <span className="font-bold text-primary">FAKULTAS ILMU KOMPUTER & TEKNOLOGI INFORMASI</span>
+              <span>•</span>
+              <span className="bg-surface-container px-2 py-0.5 rounded text-on-surface font-bold">
+                KODE: {course.code}
+              </span>
+            </div>
+            <h1 className="font-display text-2xl sm:text-3xl font-bold text-on-surface tracking-tight">
+              {course.code}: {course.name} ({course.semester})
+            </h1>
+            <p className="text-xs sm:text-sm text-on-surface-variant mt-0.5">
+              Kelola tenggat waktu sprint, verifikasi pengumpulan artefak dokumen/repositori, dan berikan catatan evaluasi.
             </p>
           </div>
-          <Button asChild>
+
+          <Button
+            asChild
+            className="bg-primary-container hover:bg-primary text-white text-xs font-semibold h-9 gap-1.5 shadow-xs self-start lg:self-auto"
+          >
             <Link href={`/courses/${params.courseId}/milestones/new`}>
-              + Buat Milestone Baru
+              <Plus className="h-4 w-4" />
+              <span>Buat Milestone Baru</span>
             </Link>
           </Button>
         </div>
 
         {milestones.length === 0 ? (
-          <div className="rounded-lg border border-dashed p-8 text-center space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Belum ada milestone yang dibuat untuk mata kuliah ini.
+          <div className="rounded-xl border border-dashed border-outline-variant bg-surface-container-lowest p-12 text-center space-y-3">
+            <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-700 mx-auto flex items-center justify-center">
+              <Flag className="h-6 w-6" />
+            </div>
+            <h3 className="font-display text-sm font-bold text-on-surface">
+              Belum Ada Target Milestone
+            </h3>
+            <p className="text-xs text-on-surface-variant max-w-md mx-auto">
+              Buat milestone pertama untuk menetapkan batas waktu pengumpulan tugas besar kelompok mahasiswa.
             </p>
-            <Button asChild variant="outline" size="sm">
+            <Button asChild size="sm" className="bg-primary-container text-white text-xs">
               <Link href={`/courses/${params.courseId}/milestones/new`}>
-                Buat Milestone Pertama
+                Buat Milestone Sekarang
               </Link>
             </Button>
           </div>
@@ -118,27 +166,39 @@ export default async function MilestonesPage({
   }
 
   // Student view
-  const studentMilestones = await getStudentMilestones(
-    params.courseId,
-    user.id
-  );
+  const studentData = await getStudentMilestones(params.courseId, user.id);
 
   return (
-    <div className="max-w-4xl mx-auto py-6 px-4 space-y-6">
-      <div className="border-b pb-4">
-        <h1 className="text-2xl font-bold tracking-tight">Milestone & Tenggat</h1>
-        <p className="text-sm text-muted-foreground">
+    <div className="max-w-7xl mx-auto py-6 px-4 md:px-6 space-y-6">
+      <nav className="flex items-center gap-1.5 text-xs text-on-surface-variant font-medium">
+        <Link
+          href={`/courses`}
+          className="hover:text-primary transition-colors"
+        >
+          Mata Kuliah
+        </Link>
+        <ChevronRight className="h-3.5 w-3.5 text-outline shrink-0" />
+        <span className="text-on-surface font-semibold font-mono">
+          Milestone Tugas Besar
+        </span>
+      </nav>
+
+      <div className="pb-4 border-b border-outline-variant">
+        <h1 className="font-display text-2xl sm:text-3xl font-bold text-on-surface tracking-tight">
+          Target Milestone & Pengumpulan
+        </h1>
+        <p className="text-xs sm:text-sm text-on-surface-variant mt-0.5">
           {course.code} — {course.name} ({course.semester})
         </p>
       </div>
 
-      {studentMilestones.length === 0 ? (
-        <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
-          Belum ada milestone yang ditentukan oleh dosen pengampu.
+      {!studentData || studentData.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-outline-variant bg-surface-container-lowest p-12 text-center text-xs text-on-surface-variant">
+          Belum ada milestone yang dijadwalkan untuk mata kuliah ini.
         </div>
       ) : (
         <div className="space-y-4">
-          {studentMilestones.map(({ milestone, submission }) => (
+          {studentData.map(({ milestone, submission }) => (
             <MilestoneTracker
               key={milestone.id}
               milestoneId={milestone.id}
@@ -148,11 +208,20 @@ export default async function MilestonesPage({
               totalGroups={1}
               submittedCount={submission?.status === "SUBMITTED" ? 1 : 0}
               lateCount={submission?.status === "LATE" ? 1 : 0}
-              pendingCount={
-                !submission || submission.status === "PENDING" ? 1 : 0
-              }
+              pendingCount={submission?.status === "PENDING" ? 1 : 0}
               isLecturer={false}
-              studentSubmission={submission}
+              studentSubmission={
+                submission
+                  ? {
+                      id: submission.id,
+                      status: submission.status,
+                      links: submission.links,
+                      lecturerNote: submission.lecturerNote,
+                      submittedAt: submission.submittedAt,
+                      groupName: submission.groupName,
+                    }
+                  : null
+              }
             />
           ))}
         </div>

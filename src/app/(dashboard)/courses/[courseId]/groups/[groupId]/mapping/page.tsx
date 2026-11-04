@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { auth, requireMember, requireLecturer } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { ChevronRight } from "lucide-react";
 import { UnmappedList, UnmappedAuthorItem } from "./_components/unmapped-list";
 import { MappingTable, ExistingMappingItem } from "./_components/mapping-table";
 import { MemberOption } from "./_components/member-select";
@@ -124,59 +125,77 @@ export default async function IdentityMappingPage({ params }: IdentityMappingPag
   }));
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between">
-        <Button asChild variant="ghost" size="sm">
-          <Link href={`/courses/${params.courseId}/groups/${params.groupId}`}>
-            ← Kembali ke Detail Kelompok {group.name}
-          </Link>
-        </Button>
-      </div>
+    <div className="space-y-6 max-w-7xl mx-auto py-2">
+      {/* Breadcrumb Navigation */}
+      <nav className="flex items-center gap-1.5 text-xs text-on-surface-variant font-medium">
+        <Link
+          href={`/courses/${group.course.id}`}
+          className="hover:text-primary transition-colors truncate max-w-[200px]"
+        >
+          {group.course.name}
+        </Link>
+        <ChevronRight className="h-3.5 w-3.5 text-outline shrink-0" />
+        <Link
+          href={`/courses/${params.courseId}/groups/${params.groupId}`}
+          className="hover:text-primary transition-colors truncate max-w-[200px]"
+        >
+          {group.name}
+        </Link>
+        <ChevronRight className="h-3.5 w-3.5 text-outline shrink-0" />
+        <span className="text-on-surface font-semibold font-mono">
+          Pemetaan Identitas Git
+        </span>
+      </nav>
 
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          Pemetaan Identitas Git ({group.name})
+      {/* Header */}
+      <div className="pb-4 border-b border-outline-variant">
+        <h1 className="font-display text-2xl sm:text-3xl font-bold text-on-surface tracking-tight">
+          Pemetaan Identitas Git & Kontributor
         </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Hubungkan author commit Git atau email lokal yang belum terdeteksi ke profil anggota kelompok agar kontribusi mereka terekam secara adil.
+        <p className="text-xs sm:text-sm text-on-surface-variant mt-1 leading-relaxed">
+          Hubungkan author commit Git atau email lokal laptop yang belum terdeteksi ke profil mahasiswa anggota {group.name} agar kontribusi mereka terekam secara adil dan transparan.
         </p>
       </div>
 
       {/* Info Banner */}
-      <div className="p-4 rounded-lg border border-primary/20 bg-muted/20 text-xs text-muted-foreground space-y-1">
-        <p className="font-semibold text-foreground">
-          ℹ️ Mengapa commit bisa tidak terhubung otomatis?
+      <div className="p-4 rounded-xl border border-outline-variant bg-surface-container-lowest shadow-xs text-xs text-on-surface-variant space-y-1">
+        <p className="font-bold text-on-surface flex items-center gap-1.5">
+          <span>ℹ️ Mengapa commit bisa tidak terhubung otomatis?</span>
         </p>
-        <p>
+        <p className="leading-relaxed">
           Hal ini umumnya terjadi jika mahasiswa menggunakan email atau nama akun Git lokal pada terminal laptop mereka yang berbeda dengan email atau username di akun GitHub utama. Setelah dipetakan, seluruh commit lampau dan commit mendatang dengan nama tersebut akan otomatis teratribusi ke mahasiswa yang dipilih.
         </p>
       </div>
 
       {/* Bagian 1: Commit / Author yang Belum Terhubung */}
-      <Card>
-        <CardHeader>
+      <Card className="bg-surface-container-lowest border-outline-variant shadow-xs">
+        <CardHeader className="border-b border-outline-variant/60 pb-3">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-lg">Aktivitas Belum Terhubung</CardTitle>
-              <CardDescription>
+              <CardTitle className="font-display text-sm sm:text-base font-bold text-on-surface">
+                Aktivitas Belum Terhubung
+              </CardTitle>
+              <CardDescription className="text-xs text-on-surface-variant">
                 Daftar author Git yang belum teratribusikan ke anggota kelompok mana pun.
               </CardDescription>
             </div>
-            <span className="text-xs font-mono bg-muted px-2 py-1 rounded">
-              {unmappedItems.length} Author Unmapped
+            <span className="text-xs font-mono font-semibold bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-full">
+              {unmappedItems.length} Author Belum Dipetakan
             </span>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-4">
           <UnmappedList items={unmappedItems} members={memberOptions} />
         </CardContent>
       </Card>
 
       {/* Bagian 2: Pemetaan yang Sedang Aktif */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Pemetaan Tersimpan</CardTitle>
-          <CardDescription>
+      <Card className="bg-surface-container-lowest border-outline-variant shadow-xs">
+        <CardHeader className="border-b border-outline-variant/60 pb-3">
+          <CardTitle className="font-display text-sm sm:text-base font-bold text-on-surface">
+            Pemetaan Tersimpan
+          </CardTitle>
+          <CardDescription className="text-xs text-on-surface-variant">
             Daftar pemetaan manual yang telah aktif untuk repositori kelompok ini.
           </CardDescription>
         </CardHeader>
