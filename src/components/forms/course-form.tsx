@@ -31,9 +31,11 @@ export function CourseForm() {
 
     setIsLoading(false);
 
-    if (res.success && res.data && typeof res.data === "object" && "id" in res.data) {
-      router.push(`/courses/${res.data.id}`);
-      router.refresh();
+    if (res.success) {
+      if (res.data && typeof res.data === "object" && "id" in res.data) {
+        router.push(`/courses/${res.data.id}`);
+        router.refresh();
+      }
     } else {
       setErrorMessage(res.error || "Gagal membuat mata kuliah");
     }

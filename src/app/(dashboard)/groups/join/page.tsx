@@ -24,10 +24,12 @@ export default function JoinGroupPage() {
     const res = await joinGroup(inviteCode.trim());
     setIsLoading(false);
 
-    if (res.success && res.data && typeof res.data === "object" && "courseId" in res.data) {
-      const { courseId, groupId } = res.data as { courseId: string; groupId: string };
-      router.push(`/courses/${courseId}/groups/${groupId}`);
-      router.refresh();
+    if (res.success) {
+      if (res.data && typeof res.data === "object" && "courseId" in res.data) {
+        const { courseId, groupId } = res.data as { courseId: string; groupId: string };
+        router.push(`/courses/${courseId}/groups/${groupId}`);
+        router.refresh();
+      }
     } else {
       setErrorMessage(res.error || "Gagal bergabung ke kelompok");
     }

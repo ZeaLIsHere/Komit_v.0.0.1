@@ -72,8 +72,10 @@ export function ConnectRepo({
 
     setIsLoading(false);
 
-    if (res.success && res.data && typeof res.data === "object" && "id" in res.data) {
-      setRepo(res.data as RepositoryData);
+    if (res.success) {
+      if (res.data && typeof res.data === "object" && "id" in res.data) {
+        setRepo(res.data as RepositoryData);
+      }
       setShowConsent(false);
     } else {
       setErrorMessage(res.error || "Gagal menghubungkan repository");

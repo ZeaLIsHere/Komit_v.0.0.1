@@ -55,6 +55,13 @@ export async function processWebhookEvent(job: { data: ProcessWebhookJobPayload 
   const excludePatterns = (repo.group.course.excludePatterns as string[]) || [];
   let latestActivityDate: Date | null = null;
 
+  const pickLaterDate = (current: Date | null, candidate: Date): Date => {
+    if (!current || candidate.getTime() > current.getTime()) {
+      return candidate;
+    }
+    return current;
+  };
+
   switch (eventType) {
     case "push": {
       const commits = Array.isArray(body.commits) ? body.commits : [];
@@ -151,9 +158,7 @@ export async function processWebhookEvent(job: { data: ProcessWebhookJobPayload 
           });
         }
 
-        if (!latestActivityDate || commitDate > latestActivityDate) {
-          latestActivityDate = commitDate;
-        }
+        latestActivityDate = pickLaterDate(latestActivityDate, commitDate);
       }
       break;
     }
@@ -195,9 +200,7 @@ export async function processWebhookEvent(job: { data: ProcessWebhookJobPayload 
           update: {},
         });
 
-        if (!latestActivityDate || createdAt > latestActivityDate) {
-          latestActivityDate = createdAt;
-        }
+        latestActivityDate = pickLaterDate(latestActivityDate, createdAt);
       } else if (action === "closed" && pr.merged) {
         const mergedAt = new Date(pr.merged_at || Date.now());
         const week = truncateToWeek(mergedAt);
@@ -243,9 +246,7 @@ export async function processWebhookEvent(job: { data: ProcessWebhookJobPayload 
           });
         }
 
-        if (!latestActivityDate || mergedAt > latestActivityDate) {
-          latestActivityDate = mergedAt;
-        }
+        latestActivityDate = pickLaterDate(latestActivityDate, mergedAt);
       }
       break;
     }
@@ -284,9 +285,7 @@ export async function processWebhookEvent(job: { data: ProcessWebhookJobPayload 
         update: {},
       });
 
-      if (!latestActivityDate || submittedAt > latestActivityDate) {
-        latestActivityDate = submittedAt;
-      }
+      latestActivityDate = pickLaterDate(latestActivityDate, submittedAt);
       break;
     }
 
@@ -327,9 +326,7 @@ export async function processWebhookEvent(job: { data: ProcessWebhookJobPayload 
           update: {},
         });
 
-        if (!latestActivityDate || createdAt > latestActivityDate) {
-          latestActivityDate = createdAt;
-        }
+        latestActivityDate = pickLaterDate(latestActivityDate, createdAt);
       } else if (action === "closed") {
         const closedAt = new Date(issue.closed_at || Date.now());
         const week = truncateToWeek(closedAt);
@@ -359,9 +356,7 @@ export async function processWebhookEvent(job: { data: ProcessWebhookJobPayload 
           update: {},
         });
 
-        if (!latestActivityDate || closedAt > latestActivityDate) {
-          latestActivityDate = closedAt;
-        }
+        latestActivityDate = pickLaterDate(latestActivityDate, closedAt);
       }
       break;
     }
@@ -402,9 +397,7 @@ export async function processWebhookEvent(job: { data: ProcessWebhookJobPayload 
         update: {},
       });
 
-      if (!latestActivityDate || createdAt > latestActivityDate) {
-        latestActivityDate = createdAt;
-      }
+      latestActivityDate = pickLaterDate(latestActivityDate, createdAt);
       break;
     }
 

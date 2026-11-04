@@ -47,8 +47,10 @@ export function CsvUpload({ courseId }: CsvUploadProps) {
     const res = await importCSV(courseId, csvContent);
     setIsLoading(false);
 
-    if (res.success && res.data) {
-      setSummary(res.data);
+    if (res.success) {
+      if (res.data) {
+        setSummary(res.data);
+      }
     } else {
       setErrorMessage(res.error || "Gagal mengimpor kelompok");
     }
