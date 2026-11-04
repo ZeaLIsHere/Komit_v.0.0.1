@@ -1,0 +1,175 @@
+import NextAuth, { type DefaultSession } from "next-auth";
+import GitHub from "next-auth/providers/github";
+import { db } from "@/lib/db";
+
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      role: "LECTURER" | "STUDENT";
+      githubId: string;
+      name: string | null;
+    } & DefaultSession["user"];
+  }
+
+  interface User {
+    role?: "LECTURER" | "STUDENT";
+    githubId?: string;
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    userId?: string;
+    role?: "LECTURER" | "STUDENT";
+    githubId?: string;
+    name?: string | null;
+  }
+}
+
+export const { handlers, signIn, signOut, auth } = NextAuth({
+  providers: [
+    GitHub({
+      clientId: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    }),
+  ],
+  session: {
+    strategy: "jwt",
+  },
+  pages: {
+    signIn: "/login",
+  },
+  callbacks: {
+    async jwt({ token, profile, trigger, session }) {
+      if (trigger === "update" && session?.name) {
+        token.name = session.name;
+      }
+
+      if (profile) {
+        const githubId = String(profile.id);
+        const username =
+          (profile.login as string) ?? (profile.name as string) ?? "user";
+        const email = profile.email as string | undefined;
+
+        const existingUser = await db.user.findUnique({
+          where: { githubId },
+        });
+
+        let role: "LECTURER" | "STUDENT" = existingUser?.role ?? "STUDENT";
+
+        if (role !== "LECTURER") {
+          const isAllowed = await db.allowedLecturer.findFirst({
+            where: {
+              OR: [
+                { githubUsername: username },
+                ...(email ? [{ email }] : []),
+              ],
+            },
+          });
+          if (isAllowed) {
+            role = "LECTURER";
+          }
+        }
+
+        const dbUser = await db.user.upsert({
+          where: { githubId },
+          update: {
+            username,
+            email: email ?? existingUser?.email,
+            avatarUrl: (profile.avatar_url as string) ?? null,
+            role,
+          },
+          create: {
+            githubId,
+            username,
+            name:
+              role === "LECTURER"
+                ? ((profile.name as string) ?? username)
+                : null,
+            email,
+            avatarUrl: (profile.avatar_url as string) ?? null,
+            role,
+          },
+        });
+
+        token.userId = dbUser.id;
+        token.role = dbUser.role;
+        token.githubId = dbUser.githubId;
+        token.name = dbUser.name;
+      }
+
+      // Check DB if token exists but name is null (e.g. after onboarding)
+      if (token.userId && !token.name) {
+        const currentUser = await db.user.findUnique({
+          where: { id: token.userId },
+          select: { name: true, role: true },
+        });
+        if (currentUser?.name) {
+          token.name = currentUser.name;
+          token.role = currentUser.role;
+        }
+      }
+
+      return token;
+    },
+
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.userId as string;
+        session.user.role =
+          (token.role as "LECTURER" | "STUDENT") ?? "STUDENT";
+        session.user.githubId = token.githubId as string;
+        session.user.name = (token.name as string | null) ?? null;
+      }
+      return session;
+    },
+  },
+});
+
+export async function requireAuth() {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+  return session.user;
+}
+
+export async function requireLecturer(courseId: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+  if (session.user.role !== "LECTURER") {
+    throw new Error("Forbidden: Hanya dosen yang dapat melakukan tindakan ini");
+  }
+  const course = await db.course.findUnique({
+    where: { id: courseId },
+  });
+  if (!course) {
+    throw new Error("Mata kuliah tidak ditemukan");
+  }
+  if (course.lecturerId !== session.user.id) {
+    throw new Error("Forbidden: Anda bukan pengampu mata kuliah ini");
+  }
+  return { session, course };
+}
+
+export async function requireMember(groupId: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+  const membership = await db.membership.findUnique({
+    where: {
+      userId_groupId: {
+        userId: session.user.id,
+        groupId,
+      },
+    },
+  });
+  if (!membership) {
+    throw new Error("Forbidden: Anda bukan anggota kelompok ini");
+  }
+  return { session, membership };
+}

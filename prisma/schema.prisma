@@ -1,0 +1,312 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// Enums
+// ============================================================
+
+enum Role {
+  LECTURER
+  STUDENT
+}
+
+enum GroupStatus {
+  ACTIVE
+  SLOWING
+  INACTIVE
+}
+
+enum RepoStatus {
+  CONNECTED
+  FAILED
+  REVOKED
+}
+
+enum EventType {
+  COMMIT
+  PR_OPENED
+  PR_MERGED
+  PR_REVIEW
+  PR_COMMENT
+  ISSUE_OPENED
+  ISSUE_CLOSED
+  ISSUE_COMMENT
+}
+
+enum SubmissionStatus {
+  PENDING
+  SUBMITTED
+  LATE
+}
+
+enum NotifType {
+  GROUP_INACTIVE
+  MILESTONE_REMINDER_3D
+  MILESTONE_REMINDER_1D
+  WEEKLY_SUMMARY
+}
+
+enum NotifStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+// ============================================================
+// Auth & Users
+// ============================================================
+
+/// Daftar putih dosen. Dicek saat login GitHub OAuth — jika cocok, user
+/// otomatis dapat role LECTURER.
+model AllowedLecturer {
+  id             String  @id @default(cuid())
+  githubUsername  String? @unique
+  email          String? @unique
+  createdAt      DateTime @default(now())
+
+  @@map("allowed_lecturers")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  githubId  String   @unique
+  username  String   // github username
+  name      String?  // nama lengkap, diisi saat onboarding
+  nim       String?  // hanya mahasiswa
+  email     String?
+  avatarUrl String?
+  role      Role     @default(STUDENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  courses              Course[]
+  memberships          Membership[]
+  identityMappings     IdentityMapping[]
+  notifications        Notification[]
+  notificationPrefs    NotificationPreference?
+
+  @@map("users")
+}
+
+// ============================================================
+// Course & Group
+// ============================================================
+
+model Course {
+  id                 String   @id @default(cuid())
+  name               String
+  code               String
+  semester           String   // "Ganjil 2026/2027"
+  lecturerId         String
+  lecturer           User     @relation(fields: [lecturerId], references: [id])
+  archived           Boolean  @default(false)
+  slowThreshold      Int      @default(8)  // hari tanpa aktivitas → SLOWING
+  inactiveThreshold  Int      @default(14) // hari tanpa aktivitas → INACTIVE
+  excludePatterns    String[] // pola file dikecualikan dari metrik (F-43)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  groups     Group[]
+  milestones Milestone[]
+
+  @@map("courses")
+}
+
+model Group {
+  id              String      @id @default(cuid())
+  courseId         String
+  course          Course      @relation(fields: [courseId], references: [id])
+  name            String
+  inviteCode      String      @unique @default(cuid())
+  status          GroupStatus @default(ACTIVE)
+  lastActivityAt  DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  memberships  Membership[]
+  repositories Repository[]
+  submissions  Submission[]
+
+  @@index([courseId])
+  @@map("groups")
+}
+
+model Membership {
+  id       String  @id @default(cuid())
+  userId   String
+  groupId  String
+  user     User    @relation(fields: [userId], references: [id])
+  group    Group   @relation(fields: [groupId], references: [id])
+  isLeader Boolean @default(false)
+  joinedAt DateTime @default(now())
+
+  nonCodeContributions NonCodeContribution[]
+
+  @@unique([userId, groupId])
+  // F-13: mahasiswa hanya 1 kelompok per mata kuliah — enforced di app layer
+  // karena constraint butuh join ke Group.courseId
+  @@map("memberships")
+}
+
+// ============================================================
+// GitHub Integration
+// ============================================================
+
+model Repository {
+  id               String     @id @default(cuid())
+  groupId          String
+  group            Group      @relation(fields: [groupId], references: [id])
+  githubRepoId     String     @unique
+  fullName         String     // "org/repo-name"
+  installationId   String
+  connectionStatus RepoStatus @default(CONNECTED)
+  historyRewritten Boolean    @default(false)
+  backfillDoneAt   DateTime?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  events           ActivityEvent[]
+  identityMappings IdentityMapping[]
+
+  @@index([groupId])
+  @@map("repositories")
+}
+
+// ============================================================
+// Activity Tracking
+// ============================================================
+
+model ActivityEvent {
+  id           String    @id @default(cuid())
+  repoId       String
+  repo         Repository @relation(fields: [repoId], references: [id])
+  type         EventType
+  githubAuthor String    // username atau email dari commit/PR
+  userId       String?   // null = belum dipetakan
+  occurredAt   DateTime
+  week         DateTime  // Senin 00:00 UTC minggu itu, untuk agregasi
+  sha          String?   // commit SHA, untuk dedup
+  prNumber     Int?
+  title        String?
+  linesAdded   Int?      // info sekunder, tidak untuk scoring (F-45)
+  linesRemoved Int?
+  isFiltered   Boolean   @default(false) // true jika kena noise filter
+  metadata     Json?
+  createdAt    DateTime  @default(now())
+
+  @@unique([repoId, type, sha])
+  @@index([repoId, week])
+  @@index([userId, week])
+  @@index([githubAuthor])
+  @@map("activity_events")
+}
+
+// ============================================================
+// Identity Mapping
+// ============================================================
+
+/// Menghubungkan "nama <email>" atau username dari commit ke User.
+/// Semua perubahan pemetaan tercatat (F-32) — row baru menggantikan
+/// yang lama via unique constraint, audit lewat createdAt + createdById.
+model IdentityMapping {
+  id          String   @id @default(cuid())
+  repoId      String
+  repo        Repository @relation(fields: [repoId], references: [id])
+  rawAuthor   String   // "John <john@mail.com>" atau "johndoe"
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  createdById String   // siapa yang memetakan
+  createdAt   DateTime @default(now())
+
+  @@unique([repoId, rawAuthor])
+  @@map("identity_mappings")
+}
+
+// ============================================================
+// Non-Code Contributions (F-44)
+// ============================================================
+
+model NonCodeContribution {
+  id           String     @id @default(cuid())
+  membershipId String
+  membership   Membership @relation(fields: [membershipId], references: [id])
+  description  String
+  week         DateTime   // Senin 00:00 UTC
+  createdAt    DateTime   @default(now())
+
+  @@index([membershipId, week])
+  @@map("non_code_contributions")
+}
+
+// ============================================================
+// Milestones & Submissions
+// ============================================================
+
+model Milestone {
+  id          String   @id @default(cuid())
+  courseId     String
+  course      Course   @relation(fields: [courseId], references: [id])
+  title       String
+  description String?
+  dueAt       DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  submissions Submission[]
+
+  @@index([courseId])
+  @@map("milestones")
+}
+
+model Submission {
+  id           String           @id @default(cuid())
+  milestoneId  String
+  milestone    Milestone        @relation(fields: [milestoneId], references: [id])
+  groupId      String
+  group        Group            @relation(fields: [groupId], references: [id])
+  status       SubmissionStatus @default(PENDING)
+  links        String[]
+  lecturerNote String?
+  submittedAt  DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@unique([milestoneId, groupId])
+  @@map("submissions")
+}
+
+// ============================================================
+// Notifications
+// ============================================================
+
+model Notification {
+  id        String      @id @default(cuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id])
+  type      NotifType
+  status    NotifStatus @default(PENDING)
+  metadata  Json?       // detail: group name, milestone title, dll
+  sentAt    DateTime?
+  createdAt DateTime    @default(now())
+
+  @@index([userId, status])
+  @@map("notifications")
+}
+
+/// Preferensi notifikasi per user (F-82)
+model NotificationPreference {
+  id                    String  @id @default(cuid())
+  userId                String  @unique
+  user                  User    @relation(fields: [userId], references: [id])
+  emailGroupInactive    Boolean @default(true)
+  emailMilestoneReminder Boolean @default(true)
+  emailWeeklySummary    Boolean @default(true)
+
+  @@map("notification_preferences")
+}
