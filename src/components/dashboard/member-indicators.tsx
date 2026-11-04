@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MemberMetricsSummary } from "@/lib/metrics";
 import { addNonCodeContribution } from "@/actions/contribution";
+import { removeMember } from "@/actions/group";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,12 +20,14 @@ interface MemberIndicatorsProps {
   groupId: string;
   members: MemberMetricsSummary[];
   isCurrentMember: boolean;
+  isLecturer?: boolean;
 }
 
 export function MemberIndicators({
   groupId,
   members,
   isCurrentMember,
+  isLecturer = false,
 }: MemberIndicatorsProps) {
   const router = useRouter();
   const [showAddNonCode, setShowAddNonCode] = useState(false);
@@ -205,6 +208,7 @@ export function MemberIndicators({
                   </th>
 
                   <th className="p-3">Status & Catatan Non-Kode</th>
+                  {isLecturer && <th className="p-3 text-right">Aksi</th>}
                 </tr>
               </thead>
 
@@ -283,6 +287,35 @@ export function MemberIndicators({
                         )
                       )}
                     </td>
+
+                    {isLecturer && (
+                      <td className="p-3 text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 text-xs text-destructive hover:bg-destructive/10"
+                          onClick={async () => {
+                            if (
+                              window.confirm(
+                                `Keluarkan ${member.name} dari kelompok ini?`
+                              )
+                            ) {
+                              const res = await removeMember(
+                                groupId,
+                                member.userId
+                              );
+                              if (res.success) {
+                                router.refresh();
+                              } else {
+                                alert(res.error || "Gagal mengeluarkan anggota");
+                              }
+                            }
+                          }}
+                        >
+                          Keluarkan
+                        </Button>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

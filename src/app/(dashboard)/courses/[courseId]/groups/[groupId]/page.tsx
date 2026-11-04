@@ -151,6 +151,7 @@ export default async function GroupDetailPage({ params }: GroupDetailPageProps) 
         groupId={group.id}
         members={memberMetrics}
         isCurrentMember={isMember}
+        isLecturer={isLecturer}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

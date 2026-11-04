@@ -42,6 +42,12 @@ export default async function CourseDashboardPage({
 
         {/* Quick Action Buttons */}
         <div className="flex flex-wrap items-center gap-2">
+          <Button asChild size="sm" className="h-9 text-xs">
+            <Link href={`/courses/${course.id}/groups/new`}>
+              + Tambah Kelompok
+            </Link>
+          </Button>
+
           <Button asChild variant="outline" size="sm" className="h-9 text-xs">
             <Link href={`/courses/${course.id}/milestones`}>
               Kelola Milestone
