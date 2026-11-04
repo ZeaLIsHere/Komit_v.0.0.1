@@ -7,7 +7,23 @@ import { type GroupStatus } from "@prisma/client";
  * If yes, skip escalating groups to INACTIVE status.
  */
 async function isHolidayForCourse(courseId: string, date: Date): Promise<boolean> {
-  const count = await db.holidayPeriod.count({
+  const holidayDb = db as unknown as {
+    holidayPeriod?: {
+      count: (args: {
+        where: {
+          courseId: string;
+          startDate: { lte: Date };
+          endDate: { gte: Date };
+        };
+      }) => Promise<number>;
+    };
+  };
+
+  if (!holidayDb.holidayPeriod) {
+    return false;
+  }
+
+  const count = await holidayDb.holidayPeriod.count({
     where: {
       courseId,
       startDate: { lte: date },

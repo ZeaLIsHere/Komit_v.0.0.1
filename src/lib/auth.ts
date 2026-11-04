@@ -76,8 +76,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const isAllowed = await db.allowedLecturer.findFirst({
             where: {
               OR: [
-                { githubUsername: username },
-                ...(email ? [{ email }] : []),
+                {
+                  githubUsername: {
+                    equals: username,
+                    mode: "insensitive" as const,
+                  },
+                },
+                ...(email
+                  ? [
+                      {
+                        email: {
+                          equals: email,
+                          mode: "insensitive" as const,
+                        },
+                      },
+                    ]
+                  : []),
               ],
             },
           });
@@ -114,16 +128,53 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.nim = dbUser.nim;
       }
 
-      // Check DB if student profile is incomplete
-      if (token.userId && (!token.name || !token.nim)) {
+      // Always sync role & profile with DB on token refresh
+      if (token.userId) {
         const currentUser = await db.user.findUnique({
           where: { id: token.userId },
-          select: { name: true, nim: true, role: true },
+          select: { name: true, nim: true, role: true, username: true, email: true },
         });
+
         if (currentUser) {
+          let currentRole = currentUser.role;
+
+          // If token says STUDENT, check if user is in AllowedLecturer (case-insensitive)
+          if (currentRole !== "LECTURER") {
+            const isAllowed = await db.allowedLecturer.findFirst({
+              where: {
+                OR: [
+                  {
+                    githubUsername: {
+                      equals: currentUser.username,
+                      mode: "insensitive" as const,
+                    },
+                  },
+                  ...(currentUser.email
+                    ? [
+                        {
+                          email: {
+                            equals: currentUser.email,
+                            mode: "insensitive" as const,
+                          },
+                        },
+                      ]
+                    : []),
+                ],
+              },
+            });
+
+            if (isAllowed) {
+              currentRole = "LECTURER";
+              await db.user.update({
+                where: { id: token.userId },
+                data: { role: "LECTURER" },
+              });
+            }
+          }
+
           token.name = currentUser.name;
           token.nim = currentUser.nim;
-          token.role = currentUser.role;
+          token.role = currentRole;
         }
       }
 
