@@ -21,21 +21,9 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Authenticated user checks
-  if (token) {
-    const isStudent = (token.role as string) === "STUDENT";
-    const isProfileIncomplete = isStudent && (!token.name || !token.nim);
-
-    if (isProfileIncomplete) {
-      if (pathname !== "/onboarding" && !pathname.startsWith("/api")) {
-        return NextResponse.redirect(new URL("/onboarding", request.url));
-      }
-    } else {
-      // Profile complete or lecturer: redirect away from login/onboarding
-      if (pathname === "/login" || pathname === "/onboarding") {
-        return NextResponse.redirect(new URL("/courses", request.url));
-      }
-    }
+  // If already logged in and visiting /login, redirect to /courses
+  if (token && pathname === "/login") {
+    return NextResponse.redirect(new URL("/courses", request.url));
   }
 
   return NextResponse.next();

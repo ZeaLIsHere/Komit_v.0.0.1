@@ -16,6 +16,11 @@ export default async function DashboardLayout({
 
   const isLecturer = session.user.role === "LECTURER";
 
+  // If student hasn't completed onboarding (missing NIM), redirect to onboarding
+  if (!isLecturer && !session.user.nim) {
+    redirect("/onboarding");
+  }
+
   return (
     <div className="min-h-screen flex bg-background">
       <Sidebar isLecturer={isLecturer} />
