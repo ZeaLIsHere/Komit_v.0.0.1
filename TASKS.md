@@ -209,7 +209,7 @@
 ### Deliverables
 
 - [ ] `src/app/(dashboard)/courses/[courseId]/groups/[groupId]/mapping/page.tsx`:
-  - Daftar rawAuthor yang `userId = null` (commit belum terhubung) — F-31
+  - Daftar rawAuthor yang `userId = mokenull` (commit belum terhubung) — F-31
   - Per rawAuthor: dropdown pilih anggota kelompok
   - Tampilkan jumlah event yang akan ter-remap
   - Sudah terpetakan: daftar mapping yang ada, tombol hapus
@@ -335,14 +335,14 @@
 
 ### Deliverables
 
-- [ ] `src/app/(dashboard)/courses/[courseId]/milestones/page.tsx`:
+- [x] `src/app/(dashboard)/courses/[courseId]/milestones/page.tsx`:
   - Dosen: daftar milestone + status per kelompok (submitted/pending/late) — F-72
   - Mahasiswa: daftar milestone + status kelompoknya — F-66
   - Klik milestone → expand detail: daftar kelompok + status + links + note
-- [ ] `src/app/(dashboard)/courses/[courseId]/milestones/new/page.tsx`:
+- [x] `src/app/(dashboard)/courses/[courseId]/milestones/new/page.tsx`:
   - Form: judul, deskripsi (opsional), tenggat (date picker)
   - Submit → createMilestone
-- [ ] `src/actions/milestone.ts`:
+- [x] `src/actions/milestone.ts`:
   - `createMilestone(courseId, { title, description, dueAt })`:
     - `requireLecturer(courseId)`
     - Buat Milestone
@@ -353,15 +353,15 @@
   - `addLecturerNote(submissionId, note)`:
     - `requireLecturer` (owner course)
     - Update Submission.lecturerNote
-- [ ] `src/components/forms/milestone-form.tsx`
-- [ ] `src/components/dashboard/milestone-tracker.tsx`:
+- [x] `src/components/forms/milestone-form.tsx`
+- [x] `src/components/dashboard/milestone-tracker.tsx`:
   - Progress bar: X of Y kelompok sudah submit
   - Status badges: PENDING (abu), SUBMITTED (hijau), LATE (merah)
-- [ ] `src/lib/jobs/check-late.ts`:
+- [x] `src/lib/jobs/check-late.ts`:
   - Cron tiap jam: `SELECT * FROM submissions WHERE status = 'PENDING' AND milestone.dueAt < now()`
   - Update status → LATE
   - Idempoten: skip yang sudah LATE
-- [ ] `src/lib/queries/milestone.ts`:
+- [x] `src/lib/queries/milestone.ts`:
   - `getMilestones(courseId)` — with submission counts per status
   - `getMilestoneDetail(milestoneId)` — with all submissions + group info
 
