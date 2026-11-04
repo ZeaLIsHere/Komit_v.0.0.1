@@ -42,7 +42,11 @@ export default async function LoginPage() {
           <form
             action={async () => {
               "use server";
-              await signIn("github", { redirectTo: "/courses" });
+              await signIn(
+                "github",
+                { redirectTo: "/courses" },
+                { prompt: "select_account" }
+              );
             }}
           >
             <Button type="submit" className="w-full gap-2" size="lg">
