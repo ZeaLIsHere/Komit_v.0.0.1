@@ -13,7 +13,9 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     pathname === "/" ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/api/auth") ||
-    pathname.startsWith("/api/github/webhook");
+    pathname.startsWith("/api/github/webhook") ||
+    pathname.startsWith("/api/health") ||
+    pathname.startsWith("/panduan");
 
   // Unauthenticated user attempting to access protected route
   if (!token && !isPublicPath) {
