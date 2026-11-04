@@ -2,6 +2,14 @@ import NextAuth, { type DefaultSession } from "next-auth";
 import GitHub from "next-auth/providers/github";
 import { db } from "@/lib/db";
 
+// Ensure Auth.js v5 has guaranteed URL and secret fallbacks on localhost
+if (!process.env.AUTH_URL) {
+  process.env.AUTH_URL = process.env.NEXTAUTH_URL || "http://localhost:3000";
+}
+if (!process.env.AUTH_SECRET && process.env.NEXTAUTH_SECRET) {
+  process.env.AUTH_SECRET = process.env.NEXTAUTH_SECRET;
+}
+
 declare module "next-auth" {
   interface Session {
     user: {
