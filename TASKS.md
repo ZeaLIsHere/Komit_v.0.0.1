@@ -84,39 +84,39 @@
 
 ### Deliverables
 
-- [ ] `src/actions/course.ts`:
+- [x] `src/actions/course.ts`:
   - `createCourse({ name, code, semester })` — validasi Zod, `requireAuth()` + role LECTURER
   - `archiveCourse(courseId)` — `requireLecturer(courseId)`, set `archived = true`
   - `updateThresholds(courseId, { slow, inactive })` — validasi: slow < inactive
   - `updateExcludePatterns(courseId, patterns: string[])` — validasi glob pattern
-- [ ] `src/actions/group.ts`:
+- [x] `src/actions/group.ts`:
   - `createGroup(courseId, { name })` — generate `inviteCode`, `requireLecturer`
   - `importCSV(courseId, csvContent: string)` — parse CSV, buat groups + pending memberships, return hasil per baris
   - `joinGroup(inviteCode)` — `requireAuth()`, cek role STUDENT, cek belum di kelompok lain di course yang sama (F-13), buat Membership
   - `removeMember(groupId, userId)` — `requireLecturer`, hapus Membership
   - `moveMember(fromGroupId, toGroupId, userId)` — `requireLecturer`, atomic: hapus + buat Membership
-- [ ] `src/app/(dashboard)/courses/page.tsx` — daftar mata kuliah dosen:
+- [x] `src/app/(dashboard)/courses/page.tsx` — daftar mata kuliah dosen:
   - Query courses by lecturerId
   - Card per course: nama, kode, semester, jumlah kelompok, badge archived
   - Tombol "Buat Mata Kuliah"
   - Mahasiswa: tampilkan courses dari membership → group → course
-- [ ] `src/app/(dashboard)/courses/new/page.tsx`:
+- [x] `src/app/(dashboard)/courses/new/page.tsx`:
   - Form: nama, kode, semester (dropdown), tahun ajaran
   - Submit → createCourse → redirect ke course detail
-- [ ] `src/app/(dashboard)/courses/[courseId]/settings/page.tsx`:
+- [x] `src/app/(dashboard)/courses/[courseId]/settings/page.tsx`:
   - Form threshold: `slowThreshold`, `inactiveThreshold` (number input, hari)
   - Form exclude patterns: textarea, satu pattern per baris
   - Tombol arsipkan mata kuliah (dengan konfirmasi)
-- [ ] `src/app/(dashboard)/groups/join/page.tsx`:
+- [x] `src/app/(dashboard)/groups/join/page.tsx`:
   - Input kode undangan
   - Submit → joinGroup → redirect ke course/group detail
   - Error handling: kode salah, sudah di kelompok lain
-- [ ] `src/app/(dashboard)/courses/[courseId]/groups/import/page.tsx`:
+- [x] `src/app/(dashboard)/courses/[courseId]/groups/import/page.tsx`:
   - Upload CSV atau paste content
   - Preview sebelum import
   - Tampilkan hasil: berhasil, gagal (dengan alasan per baris)
-- [ ] `src/components/forms/course-form.tsx` — reusable form component
-- [ ] `src/components/forms/csv-upload.tsx` — CSV upload + preview component
+- [x] `src/components/forms/course-form.tsx` — reusable form component
+- [x] `src/components/forms/csv-upload.tsx` — CSV upload + preview component
 
 ### Acceptance criteria
 
@@ -137,34 +137,34 @@
 
 ### Deliverables
 
-- [ ] `src/lib/github.ts`:
+- [x] `src/lib/github.ts`:
   - `generateInstallationToken(installationId)` — POST /app/installations/{id}/access_tokens, cache sampai expiry
   - `fetchCommits(token, owner, repo, options)` — paginate, return normalized data
   - `fetchPullRequests(token, owner, repo)` — include reviews
   - `fetchIssues(token, owner, repo)` — filter out PRs
   - `verifyWebhookSignature(body, signature, secret)` — HMAC-SHA256
   - Rate limit handler: cek `X-RateLimit-Remaining`, return `retryAfter` jika habis
-- [ ] `src/app/api/github/webhook/route.ts`:
+- [x] `src/app/api/github/webhook/route.ts`:
   - `export const runtime = 'nodejs'`
   - Read raw body, verify signature → 401 jika gagal
   - Lookup Repository by installationId → 200 ignore jika tidak ditemukan
   - Enqueue `process-webhook-event` job → return 200
   - Handle events: `push`, `pull_request`, `pull_request_review`, `issues`, `issue_comment`
-- [ ] `src/app/api/github/callback/route.ts`:
+- [x] `src/app/api/github/callback/route.ts`:
   - Handle `installation_id` + `setup_action` params
   - Fetch repo list dari GitHub API
   - Redirect ke halaman consent/connect di frontend
-- [ ] `src/actions/repository.ts`:
+- [x] `src/actions/repository.ts`:
   - `connectRepo(groupId, { installationId, githubRepoId, fullName })` — buat Repository row, enqueue backfill job
   - `disconnectRepo(repoId)` — update status REVOKED, tidak hapus data
-- [ ] `src/lib/jobs/backfill.ts`:
+- [x] `src/lib/jobs/backfill.ts`:
   - Fetch commits (paginate, max 1000) → buat ActivityEvent per commit
   - Fetch PRs (all states) → PR_OPENED, PR_MERGED events + reviews
   - Fetch issues → ISSUE_OPENED, ISSUE_CLOSED events
   - Per event: set `week` via `truncateToWeek()`, jalankan noise filter, jalankan auto identity mapping
   - Update `Repository.backfillDoneAt`, `Group.lastActivityAt`
   - Rate limit: cek remaining, reschedule job jika < 10
-- [ ] `src/lib/jobs/process-webhook.ts`:
+- [x] `src/lib/jobs/process-webhook.ts`:
   - Switch by event type, buat ActivityEvent rows
   - `push` → per commit: dedup via SHA unique constraint
   - `pull_request` → opened/merged, squash merge attribution ke PR author (F-34)
@@ -173,16 +173,16 @@
   - `issue_comment` → PR_COMMENT atau ISSUE_COMMENT
   - Co-authored-by parsing (F-33)
   - Per event: noise filter + auto identity mapping + update lastActivityAt
-- [ ] `src/lib/noise-filter.ts`:
+- [x] `src/lib/noise-filter.ts`:
   - `isNoiseEvent(event, commitFiles, excludePatterns): boolean`
   - Built-in patterns: lockfiles, node_modules, dist, build, .next, vendor, minified, generated, map files
   - Message patterns: merge commits, initial commit, bot commits
   - Logic: jika SEMUA file di commit cocok pattern → noise. Sebagian → bukan noise.
-- [ ] `src/lib/identity.ts`:
+- [x] `src/lib/identity.ts`:
   - `autoMapIdentity(event): string | null` — return userId jika cocok
   - Match order: GitHub username → email → existing IdentityMapping
   - Export untuk dipakai dari backfill dan webhook processing
-- [ ] `src/app/(dashboard)/courses/[courseId]/groups/[groupId]/_components/connect-repo.tsx`:
+- [x] `src/app/(dashboard)/courses/[courseId]/groups/[groupId]/_components/connect-repo.tsx`:
   - Consent screen: penjelasan data yang dikumpulkan
   - Tombol "Hubungkan Repository" → redirect ke GitHub App install
   - Status koneksi: terhubung/gagal/dicabut (F-24)
