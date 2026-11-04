@@ -473,9 +473,167 @@
 
 ---
 
+# FASE 2: PILOT PREPARATION & ADVANCED FEATURES
+
+Tasks berikut dirancang berdasarkan kebutuhan sisa di PRD (P1 & P2), persiapan pilot di Program Studi Ilmu Komputer USU, dan Definition of Done MVP.
+
+---
+
+## TASK-11: Data Seed & Demo Simulator
+
+**Prioritas:** P0 (Krusial untuk verifikasi lokal dan demo ke dosen pilot)  
+**Estimasi:** 0.5 hari  
+**PRD refs:** Bab 14 (Uji coba), Lampiran 17 (Definition of Done)
+
+### Deliverables
+
+- [ ] `prisma/seed.ts` — executable seed script (`npm run db:seed`)
+- [ ] Mock Akun Dosen (`AllowedLecturer` & `User`)
+- [ ] Mock 1 Mata Kuliah realistis: "Rekayasa Perangkat Lunak (TIF2101) - Ganjil 2026/2027"
+- [ ] Mock 5 Kelompok Mahasiswa dengan variasi status realistis:
+  - 2 Kelompok Berstatus **Aktif** (aktivitas commit & PR dalam 3 hari terakhir)
+  - 2 Kelompok Berstatus **Melambat** (aktivitas terakhir 10 hari lalu)
+  - 1 Kelompok Berstatus **Tidak Aktif** (aktivitas terakhir 20 hari lalu)
+- [ ] Mock 3 Milestone bertingkat:
+  - Milestone 1: Dokumen SRS & Skema ER (Sudah lewat tenggat, mayoritas SUBMITTED)
+  - Milestone 2: Prototipe Arsitektur & API (Tenggat minggu ini, variasi SUBMITTED & PENDING)
+  - Milestone 3: Demo Aplikasi & Video Pengujian (Tenggat 3 minggu lagi, semua PENDING)
+- [ ] Mock `ActivityEvent` (commit terfilter, commit valid, PR opened/merged, review)
+- [ ] Mock `NonCodeContribution` (desain Figma, riset user)
+- [ ] `package.json` script: `"db:seed": "node --loader ts-node/esm prisma/seed.ts"` atau `tsx prisma/seed.ts`
+
+### Acceptance criteria
+
+- `npm run db:seed` berjalan sukses dalam < 10 detik
+- Saat dosen membuka `/courses`, dashboard langsung terisi grafik aktivitas mingguan, metrik kelompok, dan tabel indikator yang realistis untuk presentasi dosen pilot.
+
+---
+
+## TASK-12: Ekspor Data Penilaian Dosen (CSV Export)
+
+**Prioritas:** P1  
+**Estimasi:** 1 hari  
+**PRD refs:** F-64, Bab 15 (Pertanyaan Terbuka #4)
+
+### Deliverables
+
+- [ ] `src/actions/export.ts` — server action untuk mengompilasi rekap aktivitas ke format CSV
+- [ ] `src/lib/queries/course-export.ts` — query agregasi per mahasiswa:
+  - NIM, Nama Mahasiswa, Nama Kelompok
+  - Total Commit (setelah noise filter)
+  - Hari Aktif (Active Days)
+  - Total PR Dibuka & Di-merge
+  - Total Review / Komentar PR
+  - Status Pengumpulan Milestone (Tepat Waktu / Terlambat / Belum)
+  - Catatan Kontribusi Non-Kode
+- [ ] Tombol "Ekspor Rekap CSV" di halaman dashboard dosen (`/courses/[courseId]`)
+- [ ] Format CSV yang siap dibuka langsung di Microsoft Excel dan Google Sheets (UTF-8 BOM support)
+
+### Acceptance criteria
+
+- Klik tombol "Ekspor Rekap CSV" mengunduh file `.csv` dalam < 2 detik
+- Data mencakup seluruh anggota kelompok dalam mata kuliah tanpa data ganda
+- Nilai angka dan teks rapi di Excel tanpa masalah encoding karakter Indonesia
+
+---
+
+## TASK-13: Kalender Akademik & Periode Libur
+
+**Prioritas:** P2  
+**Estimasi:** 1 hari  
+**PRD refs:** F-54
+
+### Deliverables
+
+- [ ] Update `prisma/schema.prisma` — tambah model `HolidayPeriod` relasi ke `Course` (id, courseId, name, startDate, endDate)
+- [ ] `src/actions/course.ts` — action `addHolidayPeriod`, `deleteHolidayPeriod`
+- [ ] `src/app/(dashboard)/courses/[courseId]/settings/_components/holiday-form.tsx` — UI kelola masa libur (Libur UTS, Libur UAS, Libur Nasional)
+- [ ] Update `src/lib/jobs/compute-status.ts`:
+  - Cek apakah hari ini berada dalam rentang `HolidayPeriod` mata kuliah
+  - Jika ya: lewati eskalasi status ke INACTIVE dan tunda pengiriman peringatan kelompok pasif
+
+### Acceptance criteria
+
+- Dosen dapat menambah rentang tanggal libur di halaman pengaturan mata kuliah
+- Selama masa libur, kelompok mahasiswa tidak otomatis ditandai "Tidak Aktif"
+
+---
+
+## TASK-14: Template Milestone Bawaan Mata Kuliah
+
+**Prioritas:** P2  
+**Estimasi:** 0.5 hari  
+**PRD refs:** F-74
+
+### Deliverables
+
+- [ ] `src/lib/templates/milestones.ts` — pustaka template milestone standar Ilmu Komputer USU:
+  - **Rekayasa Perangkat Lunak (RPL):** Proposal & Analisis Kebutuhan (SRS), Desain Arsitektur & ERD, Sprint 1 MVP, Uji Coba & Demo Akhir
+  - **Basis Data:** Desain Konseptual & ERD, Normalisasi & DDL PostgreSQL, Query Agregasi & Indexing, Integrasi Aplikasi CRUD
+  - **Pemrograman Web:** Mockup UI & Struktur Halaman, Autentikasi & Routing, API & Integrasi Database, Deployment & Uji Fungsional
+  - **Pemrograman Berorientasi Objek (PBO):** Use Case & Class Diagram, Implementasi Enkapsulasi & Polimorfisme, GUI & Penanganan Eksepsi, Demo Akhir
+- [ ] Komponen dropdown "Gunakan Template" di `src/app/(dashboard)/courses/[courseId]/milestones/new`
+- [ ] Pemilihan template otomatis mengisi judul, deskripsi kriteria, dan default jarak tenggat (misal: +2 minggu, +4 minggu)
+
+### Acceptance criteria
+
+- Dosen dapat memilih jenis mata kuliah dan langsung meng-generate milestone tanpa mengetik ulang dari nol
+
+---
+
+## TASK-15: Production Deployment & Observability
+
+**Prioritas:** P0 (Kebutuhan Rilis Pilot)  
+**Estimasi:** 1 hari  
+**PRD refs:** Bab 10 (Non-Fungsional), Bab 16 (Hosting), Lampiran 17 (DoD)
+
+### Deliverables
+
+- [ ] `src/app/api/health/route.ts` — endpoint health check (cek status database PostgreSQL, worker connection, dan memory usage)
+- [ ] Setup Dockerfile multi-stage production build (opsi deploy container Railway / Fly.io)
+- [ ] Konfigurasi Railway (`railway.json`) untuk persistent service background worker
+- [ ] Integrasi error tracking sederhana (Sentry atau structured error logging ke database/console)
+- [ ] Skrip backup database dokumentasi di `docs/backup.md`
+
+### Acceptance criteria
+
+- `GET /api/health` mengembalikan status `200 OK` dengan metadata status koneksi database
+- Aplikasi siap di-deploy ke Railway/VPS dengan satu kali klik/perintah push
+
+---
+
+## TASK-16: Panduan Pengguna Interaktif (Dosen & Mahasiswa)
+
+**Prioritas:** P1  
+**Estimasi:** 0.5 hari  
+**PRD refs:** Lampiran 17 (Definition of Done: dokumen panduan singkat tersedia)
+
+### Deliverables
+
+- [ ] Halaman panduan terintegrasi di aplikasi: `/panduan` (atau modal panduan di dashboard)
+- [ ] **Panduan Dosen:**
+  - Cara membuat mata kuliah & mengatur kode undangan
+  - Cara import kelompok dari file Excel/CSV absensi kampus
+  - Cara menetapkan milestone & memberi catatan evaluasi
+  - Cara menginterpretasikan metrik keaktifan (grafik, filter noise, indikator objektif)
+- [ ] **Panduan Mahasiswa:**
+  - Cara memasang GitHub App ke repository kelompok (izin read-only)
+  - Cara memetakan nama/email commit yang belum terhubung
+  - Cara mencatat kontribusi non-kode (desain, riset, dokumentasi)
+  - Cara mengumpulkan tugas milestone
+- [ ] Link "Bantuan & Panduan" yang mudah diakses dari navigasi atas dan sidebar
+
+### Acceptance criteria
+
+- Halaman panduan dapat dibaca dengan jelas di mobile dan laptop
+- Teks menggunakan Bahasa Indonesia yang mudah dipahami dosen dan mahasiswa tanpa jargon teknis yang berlebihan
+
+---
+
 ## Dependency Graph
 
 ```
+FASE 1 (Selesai):
 TASK-01 ──┬── TASK-02 ──┬── TASK-03 ──── TASK-06
           │             │
           │             └── TASK-08 ──── TASK-09
@@ -484,17 +642,24 @@ TASK-01 ──┬── TASK-02 ──┬── TASK-03 ──── TASK-06
           │             │
           │             └── TASK-07
           │
-          └── TASK-10 (paralel, kapan saja)
+          └── TASK-10 (Selesai)
+
+FASE 2 (Pilot Preparation):
+TASK-11 (Data Seed) ─────── Bisa langsung dikerjakan sekarang
+TASK-12 (Ekspor CSV) ────── Butuh TASK-03 & TASK-07 (sudah ada)
+TASK-13 (Periode Libur) ─── Butuh update schema & job compute-status
+TASK-14 (Template MS) ───── Butuh TASK-08 (sudah ada)
+TASK-15 (Production & Ops) ─ Kapan saja sebelum rilis pilot
+TASK-16 (Panduan Pengguna) ─ Kapan saja sebelum rilis pilot
 ```
 
-### Urutan eksekusi yang disarankan
+### Urutan eksekusi Fase 2 yang disarankan
 
 ```
-Minggu 1:  TASK-01 → TASK-02 (sequential, hari 1–2)
-Minggu 1:  TASK-10 (paralel, bisa mulai hari 1)
-Minggu 2:  TASK-03 + TASK-04 (paralel, 2 orang berbeda)
-Minggu 3:  TASK-06 + TASK-05 + TASK-08 (paralel, 3 orang)
-Minggu 4:  TASK-07 + TASK-09 (paralel, 2 orang)
+Langkah 1: TASK-11 (Data Seed) — agar database Neon terisi data demo langsung
+Langkah 2: TASK-12 (Ekspor CSV Dosen) — fitur vital untuk penilaian dosen
+Langkah 3: TASK-14 (Template Milestone) — mempercepat onboarding dosen
+Langkah 4: TASK-13 (Kalender Libur) — pencegahan false-positive status
+Langkah 5: TASK-15 (Deploy & Health Check) — persiapan produksi
+Langkah 6: TASK-16 (Panduan Pengguna) — melengkapi syarat rilis pilot
 ```
-
-### Total estimasi: ~16.5 hari kerja (4 orang paralel ≈ 4–5 minggu)
