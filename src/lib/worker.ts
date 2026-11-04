@@ -1,6 +1,6 @@
 import PgBoss from "pg-boss";
 
-const databaseUrl = process.env.DATABASE_URL;
+const databaseUrl = process.env.DIRECT_URL || process.env.DATABASE_URL;
 
 let bossInstance: PgBoss | null = null;
 
