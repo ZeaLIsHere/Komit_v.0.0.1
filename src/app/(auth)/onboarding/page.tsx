@@ -16,8 +16,11 @@ export default async function OnboardingPage() {
     redirect("/login");
   }
 
-  // Dosen or students who already filled their profile skip onboarding
-  if (session.user.role === "LECTURER" || session.user.name) {
+  // Dosen or students who already filled both name and nim skip onboarding
+  if (
+    session.user.role === "LECTURER" ||
+    (session.user.name && session.user.nim)
+  ) {
     redirect("/courses");
   }
 
@@ -33,7 +36,7 @@ export default async function OnboardingPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <OnboardingForm />
+          <OnboardingForm initialName={session.user.name ?? ""} />
         </CardContent>
       </Card>
     </main>

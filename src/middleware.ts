@@ -24,9 +24,9 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   // Authenticated user checks
   if (token) {
     const isStudent = (token.role as string) === "STUDENT";
-    const isProfileIncomplete = !token.name;
+    const isProfileIncomplete = isStudent && (!token.name || !token.nim);
 
-    if (isStudent && isProfileIncomplete) {
+    if (isProfileIncomplete) {
       if (pathname !== "/onboarding" && !pathname.startsWith("/api")) {
         return NextResponse.redirect(new URL("/onboarding", request.url));
       }

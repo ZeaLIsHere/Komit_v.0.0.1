@@ -6,9 +6,13 @@ import { completeProfile } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export function OnboardingForm() {
+export interface OnboardingFormProps {
+  initialName?: string;
+}
+
+export function OnboardingForm({ initialName = "" }: OnboardingFormProps) {
   const router = useRouter();
-  const [name, setName] = React.useState("");
+  const [name, setName] = React.useState(initialName);
   const [nim, setNim] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
   const [isPending, startTransition] = React.useTransition();

@@ -17,6 +17,7 @@ declare module "next-auth" {
       role: "LECTURER" | "STUDENT";
       githubId: string;
       name: string | null;
+      nim: string | null;
     } & DefaultSession["user"];
   }
 
@@ -32,6 +33,7 @@ declare module "next-auth/jwt" {
     role?: "LECTURER" | "STUDENT";
     githubId?: string;
     name?: string | null;
+    nim?: string | null;
   }
 }
 
@@ -109,16 +111,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.role = dbUser.role;
         token.githubId = dbUser.githubId;
         token.name = dbUser.name;
+        token.nim = dbUser.nim;
       }
 
-      // Check DB if token exists but name is null (e.g. after onboarding)
-      if (token.userId && !token.name) {
+      // Check DB if student profile is incomplete
+      if (token.userId && (!token.name || !token.nim)) {
         const currentUser = await db.user.findUnique({
           where: { id: token.userId },
-          select: { name: true, role: true },
+          select: { name: true, nim: true, role: true },
         });
-        if (currentUser?.name) {
+        if (currentUser) {
           token.name = currentUser.name;
+          token.nim = currentUser.nim;
           token.role = currentUser.role;
         }
       }
@@ -133,6 +137,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           (token.role as "LECTURER" | "STUDENT") ?? "STUDENT";
         session.user.githubId = token.githubId as string;
         session.user.name = (token.name as string | null) ?? null;
+        session.user.nim = (token.nim as string | null) ?? null;
       }
       return session;
     },

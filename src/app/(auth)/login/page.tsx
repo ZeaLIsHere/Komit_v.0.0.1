@@ -14,7 +14,10 @@ export default async function LoginPage() {
   const session = await auth();
 
   if (session?.user) {
-    if (session.user.role === "STUDENT" && !session.user.name) {
+    if (
+      session.user.role === "STUDENT" &&
+      (!session.user.name || !session.user.nim)
+    ) {
       redirect("/onboarding");
     }
     redirect("/courses");
