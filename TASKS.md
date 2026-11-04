@@ -384,13 +384,13 @@
 
 ### Deliverables
 
-- [ ] `src/lib/jobs/compute-status.ts`:
+- [x] `src/lib/jobs/compute-status.ts`:
   - Cron tiap jam
   - Per Group (course not archived): hitung `daysSinceLastActivity`
   - Bandingkan dengan `Course.slowThreshold` dan `Course.inactiveThreshold`
   - Update `Group.status` jika berubah
   - Jika status baru = INACTIVE → enqueue `send-notification` (type: GROUP_INACTIVE, userId: course.lecturerId)
-- [ ] `src/lib/jobs/send-notification.ts`:
+- [x] `src/lib/jobs/send-notification.ts`:
   - Generic email sender
   - Input: `{ type, userId, metadata }`
   - Cek `NotificationPreference` → skip jika user matikan jenis ini
@@ -398,32 +398,32 @@
   - Kirim via Resend
   - Update Notification: SENT + sentAt, atau FAILED
   - Idempoten: cek Notification row sudah ada untuk type+userId+metadata key yang sama dalam 24 jam
-- [ ] `src/lib/jobs/milestone-reminder.ts`:
+- [x] `src/lib/jobs/milestone-reminder.ts`:
   - Cron harian 08:00 WIB (01:00 UTC)
   - Query milestones dengan `dueAt` dalam 3 hari atau 1 hari
   - Per milestone: query semua Submission yang masih PENDING
   - Per submission: enqueue `send-notification` ke semua anggota kelompok (type: MILESTONE_REMINDER_3D atau MILESTONE_REMINDER_1D)
-- [ ] `src/lib/jobs/weekly-summary.ts`:
+- [x] `src/lib/jobs/weekly-summary.ts`:
   - Cron Senin 08:00 WIB
   - Per LECTURER yang `emailWeeklySummary = true`:
     - Query courses → groups → status summary
     - Query milestones terlambat
     - Enqueue `send-notification` (type: WEEKLY_SUMMARY)
-- [ ] `src/emails/group-inactive.tsx`:
+- [x] `src/emails/group-inactive.tsx`:
   - Template React Email: "Kelompok {nama} di {course} tidak aktif sejak {tanggal}"
   - Link ke dashboard kelompok
-- [ ] `src/emails/milestone-reminder.tsx`:
+- [x] `src/emails/milestone-reminder.tsx`:
   - Template: "Tenggat {milestone} dalam {3/1} hari"
   - Link ke halaman milestone
-- [ ] `src/emails/weekly-summary.tsx`:
+- [x] `src/emails/weekly-summary.tsx`:
   - Template: ringkasan per course — kelompok aktif/melambat/tidak aktif, milestone terlambat
   - Link ke dashboard
-- [ ] `src/actions/notification.ts`:
+- [x] `src/actions/notification.ts`:
   - `updatePreferences({ emailGroupInactive, emailMilestoneReminder, emailWeeklySummary })` — `requireAuth()`, upsert NotificationPreference
-- [ ] `src/app/(dashboard)/settings/page.tsx`:
+- [x] `src/app/(dashboard)/settings/page.tsx`:
   - Toggle per jenis notifikasi email
   - Default: semua aktif
-- [ ] `src/lib/queries/notification.ts`:
+- [x] `src/lib/queries/notification.ts`:
   - `getPreferences(userId)` — return preferences dengan defaults
 
 ### Acceptance criteria
