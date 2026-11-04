@@ -31,6 +31,12 @@ export function Sidebar({ isLecturer }: SidebarProps) {
             <span>Mata Kuliah</span>
           </Link>
           <Link
+            href="/panduan"
+            className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <span>Panduan & Bantuan</span>
+          </Link>
+          <Link
             href="/settings"
             className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
           >

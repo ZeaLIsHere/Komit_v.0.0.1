@@ -39,6 +39,12 @@ export function Nav({ user }: NavProps) {
           </Badge>
         </div>
 
+        <Link href="/panduan">
+          <Button variant="ghost" size="sm" className="h-8 text-xs">
+            Panduan
+          </Button>
+        </Link>
+
         <Link href="/settings">
           <Button variant="ghost" size="sm" className="h-8 text-xs">
             Pengaturan

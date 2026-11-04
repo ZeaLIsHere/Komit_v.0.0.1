@@ -567,13 +567,13 @@ Tasks berikut dirancang berdasarkan kebutuhan sisa di PRD (P1 & P2), persiapan p
 
 ### Deliverables
 
-- [ ] `src/lib/templates/milestones.ts` — pustaka template milestone standar Ilmu Komputer USU:
+- [x] `src/lib/templates/milestones.ts` — pustaka template milestone standar Ilmu Komputer USU:
   - **Rekayasa Perangkat Lunak (RPL):** Proposal & Analisis Kebutuhan (SRS), Desain Arsitektur & ERD, Sprint 1 MVP, Uji Coba & Demo Akhir
   - **Basis Data:** Desain Konseptual & ERD, Normalisasi & DDL PostgreSQL, Query Agregasi & Indexing, Integrasi Aplikasi CRUD
   - **Pemrograman Web:** Mockup UI & Struktur Halaman, Autentikasi & Routing, API & Integrasi Database, Deployment & Uji Fungsional
   - **Pemrograman Berorientasi Objek (PBO):** Use Case & Class Diagram, Implementasi Enkapsulasi & Polimorfisme, GUI & Penanganan Eksepsi, Demo Akhir
-- [ ] Komponen dropdown "Gunakan Template" di `src/app/(dashboard)/courses/[courseId]/milestones/new`
-- [ ] Pemilihan template otomatis mengisi judul, deskripsi kriteria, dan default jarak tenggat (misal: +2 minggu, +4 minggu)
+- [x] Komponen dropdown "Gunakan Template" di `src/app/(dashboard)/courses/[courseId]/milestones/new`
+- [x] Pemilihan template otomatis mengisi judul, deskripsi kriteria, dan default jarak tenggat (misal: +2 minggu, +4 minggu)
 
 ### Acceptance criteria
 
@@ -589,11 +589,11 @@ Tasks berikut dirancang berdasarkan kebutuhan sisa di PRD (P1 & P2), persiapan p
 
 ### Deliverables
 
-- [ ] `src/app/api/health/route.ts` — endpoint health check (cek status database PostgreSQL, worker connection, dan memory usage)
-- [ ] Setup Dockerfile multi-stage production build (opsi deploy container Railway / Fly.io)
-- [ ] Konfigurasi Railway (`railway.json`) untuk persistent service background worker
-- [ ] Integrasi error tracking sederhana (Sentry atau structured error logging ke database/console)
-- [ ] Skrip backup database dokumentasi di `docs/backup.md`
+- [x] `src/app/api/health/route.ts` — endpoint health check (cek status database PostgreSQL, worker connection, dan memory usage)
+- [x] Setup Dockerfile multi-stage production build (opsi deploy container Railway / Fly.io)
+- [x] Konfigurasi Railway (`railway.json`) untuk persistent service background worker
+- [x] Integrasi error tracking sederhana (Sentry atau structured error logging ke database/console)
+- [x] Skrip backup database dokumentasi di `docs/backup.md`
 
 ### Acceptance criteria
 
@@ -610,18 +610,18 @@ Tasks berikut dirancang berdasarkan kebutuhan sisa di PRD (P1 & P2), persiapan p
 
 ### Deliverables
 
-- [ ] Halaman panduan terintegrasi di aplikasi: `/panduan` (atau modal panduan di dashboard)
-- [ ] **Panduan Dosen:**
+- [x] Halaman panduan terintegrasi di aplikasi: `/panduan` (atau modal panduan di dashboard)
+- [x] **Panduan Dosen:**
   - Cara membuat mata kuliah & mengatur kode undangan
   - Cara import kelompok dari file Excel/CSV absensi kampus
   - Cara menetapkan milestone & memberi catatan evaluasi
   - Cara menginterpretasikan metrik keaktifan (grafik, filter noise, indikator objektif)
-- [ ] **Panduan Mahasiswa:**
+- [x] **Panduan Mahasiswa:**
   - Cara memasang GitHub App ke repository kelompok (izin read-only)
   - Cara memetakan nama/email commit yang belum terhubung
   - Cara mencatat kontribusi non-kode (desain, riset, dokumentasi)
   - Cara mengumpulkan tugas milestone
-- [ ] Link "Bantuan & Panduan" yang mudah diakses dari navigasi atas dan sidebar
+- [x] Link "Bantuan & Panduan" yang mudah diakses dari navigasi atas dan sidebar
 
 ### Acceptance criteria
 
