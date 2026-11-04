@@ -446,20 +446,20 @@
 
 ### Deliverables
 
-- [ ] `src/app/page.tsx` — landing page:
+- [x] `src/app/page.tsx` — landing page:
   - Hero: tagline, value proposition, tombol "Masuk dengan GitHub"
   - Section: cara kerja (3 langkah), fitur utama (3–4 item), FAQ singkat
   - Footer: link GitHub repo, kontak tim
   - Bahasa Indonesia
-- [ ] `src/components/layout/consent-banner.tsx`:
+- [x] `src/components/layout/consent-banner.tsx`:
   - Banner di halaman connect repo
   - Teks: data apa yang dikumpulkan, siapa yang bisa lihat, hak penghapusan
-- [ ] `src/app/_components/` — komponen landing page (hero, features, faq)
-- [ ] `public/` assets:
+- [x] `src/app/_components/` — komponen landing page (hero, features, faq)
+- [x] `public/` assets:
   - Logo (SVG)
   - Favicon
   - OG image (1200x630)
-- [ ] Responsive polish:
+- [x] Responsive polish:
   - Cek semua halaman di viewport 375px (mobile) dan 1280px (desktop)
   - Fix spacing, overflow, font size yang bermasalah
   - **Hanya CSS/className changes**, tidak ada logic changes

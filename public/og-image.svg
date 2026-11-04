@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" fill="none">
+  <rect width="1200" height="630" fill="#090d16"/>
+  
+  <!-- Subtle grid lines -->
+  <path d="M0 100H1200M0 200H1200M0 300H1200M0 400H1200M0 500H1200M200 0V630M400 0V630M600 0V630M800 0V630M1000 0V630" stroke="#1f293d" stroke-width="1" opacity="0.4"/>
+  
+  <!-- Logo Icon -->
+  <g transform="translate(100, 120)">
+    <rect width="80" height="80" rx="20" fill="#2563eb"/>
+    <path d="M25 20V60M25 40L45 20M32 33L53 60" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  
+  <!-- Brand Text -->
+  <text x="210" y="178" fill="#FFFFFF" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="44" font-weight="bold" letter-spacing="-1">Komit</text>
+  <text x="360" y="178" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="24">| Platform Pemantauan Proyek Mahasiswa</text>
+
+  <!-- Tagline / Title -->
+  <text x="100" y="320" fill="#F8FAFC" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="52" font-weight="bold" letter-spacing="-1.5">
+    Pantau Aktivitas Proyek Kelompok
+  </text>
+  <text x="100" y="380" fill="#38bdf8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="52" font-weight="bold" letter-spacing="-1.5">
+    Otomatis dari Repositori GitHub
+  </text>
+
+  <!-- Description -->
+  <text x="100" y="460" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="24" line-height="36">
+    Dosen melihat keaktifan nyata dalam satu layar. Mahasiswa fokus berkarya tanpa input manual.
+  </text>
+  
+  <!-- Institution Tag -->
+  <rect x="100" y="520" width="360" height="42" rx="8" fill="#1e293b"/>
+  <text x="120" y="547" fill="#cbd5e1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="500">
+    Program Studi Ilmu Komputer USU
+  </text>
+</svg>
