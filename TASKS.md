@@ -246,27 +246,27 @@
 
 ### Deliverables
 
-- [ ] `src/app/(dashboard)/layout.tsx` — dashboard layout:
+- [x] `src/app/(dashboard)/layout.tsx` — dashboard layout:
   - Sidebar: daftar courses, link settings, user info
   - Top nav: nama course aktif, tombol logout
   - Responsive: sidebar collapsible di mobile
-- [ ] `src/app/(dashboard)/page.tsx`:
+- [x] `src/app/(dashboard)/page.tsx`:
   - LECTURER: redirect ke `/courses`
   - STUDENT: redirect ke course/group dari membership
-- [ ] `src/app/(dashboard)/courses/[courseId]/page.tsx` — dashboard utama dosen:
+- [x] `src/app/(dashboard)/courses/[courseId]/page.tsx` — dashboard utama dosen:
   - Daftar semua kelompok dalam course
   - Per kelompok: nama, status (badge warna), lastActivityAt, jumlah anggota, milestone aktif
   - Filter: by status (Aktif/Melambat/Tidak Aktif), by nama
   - Sort: by status, by nama, by lastActivityAt, by milestone terlambat
   - Klik kelompok → ke detail kelompok
-- [ ] `src/components/dashboard/group-card.tsx`:
+- [x] `src/components/dashboard/group-card.tsx`:
   - Card view: status badge, aktivitas terakhir, member count, milestone progress
-- [ ] `src/components/dashboard/group-table.tsx`:
+- [x] `src/components/dashboard/group-table.tsx`:
   - Table view: sortable columns
   - Toggle antara card view dan table view
-- [ ] `src/components/layout/sidebar.tsx`
-- [ ] `src/components/layout/nav.tsx`
-- [ ] `src/lib/queries/course-dashboard.ts`:
+- [x] `src/components/layout/sidebar.tsx`
+- [x] `src/components/layout/nav.tsx`
+- [x] `src/lib/queries/course-dashboard.ts`:
   - `getCourseWithGroups(courseId)` — groups + status + lastActivityAt + member count + milestone progress
   - Satu query efisien, bukan N+1
 
