@@ -30,6 +30,15 @@ const updateExcludePatternsSchema = z.object({
   patterns: z.array(z.string().trim()).default([]),
 });
 
+const holidayPeriodSchema = z.object({
+  name: z.string().min(1, "Nama periode wajib diisi"),
+  startDate: z.date({ required_error: "Tanggal mulai wajib diisi" }),
+  endDate: z.date({ required_error: "Tanggal selesai wajib diisi" }),
+}).refine((data) => data.startDate <= data.endDate, {
+  message: "Tanggal mulai tidak boleh melebihi tanggal selesai",
+  path: ["endDate"],
+});
+
 /**
  * Creates a new course under the authenticated lecturer.
  */
@@ -153,3 +162,61 @@ export async function updateExcludePatterns(
   }
 }
 
+/**
+ * Adds a holiday/academic-break period to a course.
+ * During a holiday, groups are not escalated to INACTIVE status.
+ */
+export async function addHolidayPeriod(
+  courseId: string,
+  input: { name: string; startDate: Date; endDate: Date }
+): Promise<ActionResult> {
+  try {
+    await requireLecturer(courseId);
+
+    const parsed = holidayPeriodSchema.safeParse(input);
+    if (!parsed.success) {
+      return { success: false, error: parsed.error.errors[0]?.message || "Data periode tidak valid" };
+    }
+
+    const period = await db.holidayPeriod.create({
+      data: {
+        courseId,
+        name: parsed.data.name,
+        startDate: parsed.data.startDate,
+        endDate: parsed.data.endDate,
+      },
+    });
+
+    revalidatePath(`/courses/${courseId}/settings`);
+    return { success: true, data: period };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Gagal menambah periode libur";
+    return { success: false, error: message };
+  }
+}
+
+/**
+ * Deletes a holiday period. Only the lecturer who owns the course can delete it.
+ */
+export async function deleteHolidayPeriod(periodId: string): Promise<ActionResult> {
+  try {
+    const period = await db.holidayPeriod.findUnique({
+      where: { id: periodId },
+      select: { courseId: true },
+    });
+
+    if (!period) {
+      return { success: false, error: "Periode libur tidak ditemukan" };
+    }
+
+    await requireLecturer(period.courseId);
+
+    await db.holidayPeriod.delete({ where: { id: periodId } });
+
+    revalidatePath(`/courses/${period.courseId}/settings`);
+    return { success: true, data: { id: periodId } };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Gagal menghapus periode libur";
+    return { success: false, error: message };
+  }
+}

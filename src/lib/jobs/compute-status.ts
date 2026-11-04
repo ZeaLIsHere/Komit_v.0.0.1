@@ -2,6 +2,21 @@ import { db } from "@/lib/db";
 import { sendNotificationEmail } from "@/lib/jobs/send-notification";
 import { type GroupStatus } from "@prisma/client";
 
+/**
+ * Checks whether a given date falls within any holiday period for the course.
+ * If yes, skip escalating groups to INACTIVE status.
+ */
+async function isHolidayForCourse(courseId: string, date: Date): Promise<boolean> {
+  const count = await db.holidayPeriod.count({
+    where: {
+      courseId,
+      startDate: { lte: date },
+      endDate: { gte: date },
+    },
+  });
+  return count > 0;
+}
+
 export async function computeGroupStatus(): Promise<{
   checkedGroups: number;
   updatedCount: number;
@@ -30,6 +45,9 @@ export async function computeGroupStatus(): Promise<{
   let inactivatedCount = 0;
 
   for (const course of courses) {
+    // Check once per course whether today is a holiday
+    const isHoliday = await isHolidayForCourse(course.id, now);
+
     for (const group of course.groups) {
       checkedGroups++;
 
@@ -42,6 +60,11 @@ export async function computeGroupStatus(): Promise<{
       if (daysSince > course.inactiveThreshold) {
         newStatus = "INACTIVE";
       } else if (daysSince > course.slowThreshold) {
+        newStatus = "SLOWING";
+      }
+
+      // During a holiday period, do not escalate to INACTIVE
+      if (newStatus === "INACTIVE" && isHoliday) {
         newStatus = "SLOWING";
       }
 
