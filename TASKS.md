@@ -487,20 +487,20 @@ Tasks berikut dirancang berdasarkan kebutuhan sisa di PRD (P1 & P2), persiapan p
 
 ### Deliverables
 
-- [ ] `prisma/seed.ts` — executable seed script (`npm run db:seed`)
-- [ ] Mock Akun Dosen (`AllowedLecturer` & `User`)
-- [ ] Mock 1 Mata Kuliah realistis: "Rekayasa Perangkat Lunak (TIF2101) - Ganjil 2026/2027"
-- [ ] Mock 5 Kelompok Mahasiswa dengan variasi status realistis:
+- [x] `prisma/seed.ts` — executable seed script (`npm run db:seed`)
+- [x] Mock Akun Dosen (`AllowedLecturer` & `User`)
+- [x] Mock 1 Mata Kuliah realistis: "Rekayasa Perangkat Lunak (TIF2101) - Ganjil 2026/2027"
+- [x] Mock 5 Kelompok Mahasiswa dengan variasi status realistis:
   - 2 Kelompok Berstatus **Aktif** (aktivitas commit & PR dalam 3 hari terakhir)
   - 2 Kelompok Berstatus **Melambat** (aktivitas terakhir 10 hari lalu)
   - 1 Kelompok Berstatus **Tidak Aktif** (aktivitas terakhir 20 hari lalu)
-- [ ] Mock 3 Milestone bertingkat:
+- [x] Mock 3 Milestone bertingkat:
   - Milestone 1: Dokumen SRS & Skema ER (Sudah lewat tenggat, mayoritas SUBMITTED)
   - Milestone 2: Prototipe Arsitektur & API (Tenggat minggu ini, variasi SUBMITTED & PENDING)
   - Milestone 3: Demo Aplikasi & Video Pengujian (Tenggat 3 minggu lagi, semua PENDING)
-- [ ] Mock `ActivityEvent` (commit terfilter, commit valid, PR opened/merged, review)
-- [ ] Mock `NonCodeContribution` (desain Figma, riset user)
-- [ ] `package.json` script: `"db:seed": "node --loader ts-node/esm prisma/seed.ts"` atau `tsx prisma/seed.ts`
+- [x] Mock `ActivityEvent` (commit terfilter, commit valid, PR opened/merged, review)
+- [x] Mock `NonCodeContribution` (desain Figma, riset user)
+- [x] `package.json` script: `"db:seed": "node --loader ts-node/esm prisma/seed.ts"` atau `tsx prisma/seed.ts`
 
 ### Acceptance criteria
 
@@ -517,8 +517,8 @@ Tasks berikut dirancang berdasarkan kebutuhan sisa di PRD (P1 & P2), persiapan p
 
 ### Deliverables
 
-- [ ] `src/actions/export.ts` — server action untuk mengompilasi rekap aktivitas ke format CSV
-- [ ] `src/lib/queries/course-export.ts` — query agregasi per mahasiswa:
+- [x] `src/actions/export.ts` — server action untuk mengompilasi rekap aktivitas ke format CSV
+- [x] `src/lib/queries/course-export.ts` — query agregasi per mahasiswa:
   - NIM, Nama Mahasiswa, Nama Kelompok
   - Total Commit (setelah noise filter)
   - Hari Aktif (Active Days)
@@ -526,8 +526,8 @@ Tasks berikut dirancang berdasarkan kebutuhan sisa di PRD (P1 & P2), persiapan p
   - Total Review / Komentar PR
   - Status Pengumpulan Milestone (Tepat Waktu / Terlambat / Belum)
   - Catatan Kontribusi Non-Kode
-- [ ] Tombol "Ekspor Rekap CSV" di halaman dashboard dosen (`/courses/[courseId]`)
-- [ ] Format CSV yang siap dibuka langsung di Microsoft Excel dan Google Sheets (UTF-8 BOM support)
+- [x] Tombol "Ekspor Rekap CSV" di halaman dashboard dosen (`/courses/[courseId]`)
+- [x] Format CSV yang siap dibuka langsung di Microsoft Excel dan Google Sheets (UTF-8 BOM support)
 
 ### Acceptance criteria
 
@@ -545,10 +545,10 @@ Tasks berikut dirancang berdasarkan kebutuhan sisa di PRD (P1 & P2), persiapan p
 
 ### Deliverables
 
-- [ ] Update `prisma/schema.prisma` — tambah model `HolidayPeriod` relasi ke `Course` (id, courseId, name, startDate, endDate)
-- [ ] `src/actions/course.ts` — action `addHolidayPeriod`, `deleteHolidayPeriod`
-- [ ] `src/app/(dashboard)/courses/[courseId]/settings/_components/holiday-form.tsx` — UI kelola masa libur (Libur UTS, Libur UAS, Libur Nasional)
-- [ ] Update `src/lib/jobs/compute-status.ts`:
+- [x] Update `prisma/schema.prisma` — tambah model `HolidayPeriod` relasi ke `Course` (id, courseId, name, startDate, endDate)
+- [x] `src/actions/course.ts` — action `addHolidayPeriod`, `deleteHolidayPeriod`
+- [x] `src/app/(dashboard)/courses/[courseId]/settings/_components/holiday-form.tsx` — UI kelola masa libur (Libur UTS, Libur UAS, Libur Nasional)
+- [x] Update `src/lib/jobs/compute-status.ts`:
   - Cek apakah hari ini berada dalam rentang `HolidayPeriod` mata kuliah
   - Jika ya: lewati eskalasi status ke INACTIVE dan tunda pengiriman peringatan kelompok pasif
 

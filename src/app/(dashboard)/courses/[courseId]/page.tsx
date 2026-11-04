@@ -1,10 +1,11 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireLecturer } from "@/lib/auth";
 import { getCourseWithGroups } from "@/lib/queries/course-dashboard";
 import { GroupTable } from "@/components/dashboard/group-table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { ExportCsvButton } from "./_components/export-csv-button";
 
 export default async function CourseDashboardPage({
   params,
@@ -58,6 +59,8 @@ export default async function CourseDashboardPage({
               Pengaturan
             </Link>
           </Button>
+
+          <ExportCsvButton courseId={course.id} />
         </div>
       </div>
 

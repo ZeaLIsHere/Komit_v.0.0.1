@@ -63,7 +63,7 @@ enum NotifStatus {
 // Auth & Users
 // ============================================================
 
-/// Daftar putih dosen. Dicek saat login GitHub OAuth — jika cocok, user
+/// Daftar putih dosen. Dicek saat login GitHub OAuth â€” jika cocok, user
 /// otomatis dapat role LECTURER.
 model AllowedLecturer {
   id             String  @id @default(cuid())
@@ -107,16 +107,30 @@ model Course {
   lecturerId         String
   lecturer           User     @relation(fields: [lecturerId], references: [id])
   archived           Boolean  @default(false)
-  slowThreshold      Int      @default(8)  // hari tanpa aktivitas → SLOWING
-  inactiveThreshold  Int      @default(14) // hari tanpa aktivitas → INACTIVE
+  slowThreshold      Int      @default(8)  // hari tanpa aktivitas â†’ SLOWING
+  inactiveThreshold  Int      @default(14) // hari tanpa aktivitas â†’ INACTIVE
   excludePatterns    String[] // pola file dikecualikan dari metrik (F-43)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
-  groups     Group[]
-  milestones Milestone[]
+  groups         Group[]
+  milestones     Milestone[]
+  holidayPeriods HolidayPeriod[]
 
   @@map("courses")
+}
+
+model HolidayPeriod {
+  id        String   @id @default(cuid())
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id])
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  createdAt DateTime @default(now())
+
+  @@index([courseId])
+  @@map("holiday_periods")
 }
 
 model Group {
@@ -150,7 +164,7 @@ model Membership {
   nonCodeContributions NonCodeContribution[]
 
   @@unique([userId, groupId])
-  // F-13: mahasiswa hanya 1 kelompok per mata kuliah — enforced di app layer
+  // F-13: mahasiswa hanya 1 kelompok per mata kuliah â€” enforced di app layer
   // karena constraint butuh join ke Group.courseId
   @@map("memberships")
 }
@@ -213,7 +227,7 @@ model ActivityEvent {
 // ============================================================
 
 /// Menghubungkan "nama <email>" atau username dari commit ke User.
-/// Semua perubahan pemetaan tercatat (F-32) — row baru menggantikan
+/// Semua perubahan pemetaan tercatat (F-32) â€” row baru menggantikan
 /// yang lama via unique constraint, audit lewat createdAt + createdById.
 model IdentityMapping {
   id          String   @id @default(cuid())

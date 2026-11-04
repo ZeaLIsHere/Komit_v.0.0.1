@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { auth, requireLecturer } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { SettingsForm } from "./_components/settings-form";
+import { HolidayForm } from "./_components/holiday-form";
 
 interface CourseSettingsPageProps {
   params: {
@@ -25,6 +26,7 @@ export default async function CourseSettingsPage({ params }: CourseSettingsPageP
 
   const course = await db.course.findUnique({
     where: { id: params.courseId },
+    include: { holidayPeriods: { orderBy: { startDate: "asc" } } },
   });
 
   if (!course) {
@@ -42,7 +44,8 @@ export default async function CourseSettingsPage({ params }: CourseSettingsPageP
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Pengaturan Mata Kuliah</h1>
         <p className="text-sm text-muted-foreground">
-          Kelola ambang batas status keaktifan kelompok dan filter berkas yang diabaikan untuk {course.name}.
+          Kelola ambang batas status keaktifan kelompok dan filter berkas yang diabaikan untuk{" "}
+          {course.name}.
         </p>
       </div>
 
@@ -57,7 +60,10 @@ export default async function CourseSettingsPage({ params }: CourseSettingsPageP
         }
         isArchived={course.archived}
       />
+
+      <hr className="border-border" />
+
+      <HolidayForm courseId={course.id} holidayPeriods={course.holidayPeriods} />
     </div>
   );
 }
-
