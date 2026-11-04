@@ -208,12 +208,12 @@
 
 ### Deliverables
 
-- [ ] `src/app/(dashboard)/courses/[courseId]/groups/[groupId]/mapping/page.tsx`:
-  - Daftar rawAuthor yang `userId = mokenull` (commit belum terhubung) — F-31
+- [x] `src/app/(dashboard)/courses/[courseId]/groups/[groupId]/mapping/page.tsx`:
+  - Daftar rawAuthor yang `userId = null` (commit belum terhubung) — F-31
   - Per rawAuthor: dropdown pilih anggota kelompok
   - Tampilkan jumlah event yang akan ter-remap
   - Sudah terpetakan: daftar mapping yang ada, tombol hapus
-- [ ] `src/actions/identity.ts`:
+- [x] `src/actions/identity.ts`:
   - `mapIdentity(repoId, rawAuthor, targetUserId)`:
     - `requireMember` (anggota kelompok yang repo-nya)
     - Upsert IdentityMapping
@@ -223,7 +223,7 @@
     - `requireMember`
     - Hapus IdentityMapping
     - Batch update ActivityEvent → set `userId = null`
-- [ ] `mapping/_components/`:
+- [x] `mapping/_components/`:
   - `unmapped-list.tsx` — tabel rawAuthor belum terhubung
   - `mapping-table.tsx` — tabel mapping yang sudah ada
   - `member-select.tsx` — dropdown anggota kelompok
@@ -288,7 +288,7 @@
 
 ### Deliverables
 
-- [ ] `src/app/(dashboard)/courses/[courseId]/groups/[groupId]/page.tsx`:
+- [x] `src/app/(dashboard)/courses/[courseId]/groups/[groupId]/page.tsx`:
   - Grafik aktivitas mingguan kelompok (bar chart) — F-62
   - Tabel indikator per anggota: commits, PRs opened/merged, reviews, issues, active days — F-40
   - Daftar PR/commit terbaru (5–10 item)
@@ -296,23 +296,23 @@
   - Kontribusi non-kode — F-44
   - Akses: LECTURER (owner course) ATAU MEMBER (kelompok ini) — F-65
   - Mahasiswa dan dosen lihat data yang sama (transparansi)
-- [ ] `src/components/dashboard/activity-chart.tsx`:
+- [x] `src/components/dashboard/activity-chart.tsx`:
   - Bar chart: total events per minggu, stacked by type
   - Library: recharts (sudah include di shadcn/ui charts)
   - Tooltip per bar: breakdown per event type
-- [ ] `src/components/dashboard/member-indicators.tsx`:
+- [x] `src/components/dashboard/member-indicators.tsx`:
   - Tabel per anggota per minggu
   - Setiap indikator punya tooltip penjelasan (F-63): cara hitung + keterbatasan
   - Penanda anggota: "tidak ada aktivitas X minggu" (F-52)
   - Non-code contributions inline
-- [ ] `src/lib/metrics.ts`:
+- [x] `src/lib/metrics.ts`:
   - `getMemberMetrics(groupId, weeks?)` — per anggota per minggu (raw SQL untuk efisiensi)
   - `getGroupMetrics(groupId, weeks?)` — per kelompok per minggu
   - `getRecentActivity(groupId, limit)` — PR/commit terbaru
   - `getUnmappedCount(groupId)` — jumlah event tanpa userId
-- [ ] `src/lib/queries/group-detail.ts`:
+- [x] `src/lib/queries/group-detail.ts`:
   - `getGroupDetail(groupId)` — group + members + repos + connection status
-- [ ] `src/actions/contribution.ts`:
+- [x] `src/actions/contribution.ts`:
   - `addNonCodeContribution(groupId, { description })` — `requireMember`, buat NonCodeContribution, week = current week
 
 ### Acceptance criteria
